@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm add:*)",
+      "Bash(pnpm dlx shadcn-svelte@latest init:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(tree:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm run dev)",
+      "Bash(timeout 10 pnpm run dev:*)",
+      "Bash(curl:*)"
+    ]
+  }
+}
