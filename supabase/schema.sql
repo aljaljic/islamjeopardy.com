@@ -14,8 +14,11 @@ create type category_type as enum (
   'hadith',
   'sunnah',
   'islamic_beliefs',
-  'islamic_etiquette',
+  'islamic_manners',
   'history',
+  'seerah',
+  'fiqh',
+  'arabic_language',
   'other'
 );
 
@@ -422,8 +425,11 @@ insert into categories (name, category_type, description) values
   ('Hadith', 'hadith', 'Questions about Hadith and sayings of Prophet Muhammad (PBUH)'),
   ('Sunnah', 'sunnah', 'Questions about the Sunnah of the Prophet'),
   ('Islamic Beliefs', 'islamic_beliefs', 'Questions about core Islamic beliefs and theology'),
-  ('Islamic Etiquette', 'islamic_etiquette', 'Questions about Islamic etiquette and manners'),
+  ('Manners', 'islamic_manners', 'Questions about Islamic etiquette and manners'),
   ('Islamic History', 'history', 'Questions about Islamic history'),
+  ('Seerah', 'seerah', 'Questions about the life of Prophet Muhammad (PBUH)'),
+  ('Fiqh', 'fiqh', 'Questions about Islamic jurisprudence and rulings'),
+  ('Arabic Language', 'arabic_language', 'Questions about Arabic language and vocabulary'),
   ('General Knowledge', 'other', 'General Islamic knowledge');
 
 -- ============================================================================

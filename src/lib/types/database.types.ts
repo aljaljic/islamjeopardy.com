@@ -39,21 +39,21 @@ export type Database = {
 				Row: {
 					id: string;
 					name: string;
-					category_type: 'prophets' | 'quran' | 'hadith' | 'sunnah' | 'islamic_beliefs' | 'islamic_manners' | 'history' | 'other';
+					category_type: 'prophets' | 'quran' | 'hadith' | 'sunnah' | 'islamic_beliefs' | 'islamic_manners' | 'history' | 'seerah' | 'fiqh' | 'arabic_language' | 'other';
 					description: string | null;
 					created_at: string;
 				};
 				Insert: {
 					id?: string;
 					name: string;
-					category_type: 'prophets' | 'quran' | 'hadith' | 'sunnah' | 'islamic_beliefs' | 'islamic_manners' | 'history' | 'other';
+					category_type: 'prophets' | 'quran' | 'hadith' | 'sunnah' | 'islamic_beliefs' | 'islamic_manners' | 'history' | 'seerah' | 'fiqh' | 'arabic_language' | 'other';
 					description?: string | null;
 					created_at?: string;
 				};
 				Update: {
 					id?: string;
 					name?: string;
-					category_type?: 'prophets' | 'quran' | 'hadith' | 'sunnah' | 'islamic_beliefs' | 'islamic_manners' | 'history' | 'other';
+					category_type?: 'prophets' | 'quran' | 'hadith' | 'sunnah' | 'islamic_beliefs' | 'islamic_manners' | 'history' | 'seerah' | 'fiqh' | 'arabic_language' | 'other';
 					description?: string | null;
 					created_at?: string;
 				};
@@ -227,7 +227,7 @@ export type Database = {
 		Views: {};
 		Functions: {};
 		Enums: {
-			category_type: 'prophets' | 'quran' | 'hadith' | 'sunnah' | 'islamic_beliefs' | 'islamic_manners' | 'history' | 'other';
+			category_type: 'prophets' | 'quran' | 'hadith' | 'sunnah' | 'islamic_beliefs' | 'islamic_manners' | 'history' | 'seerah' | 'fiqh' | 'arabic_language' | 'other';
 			difficulty_level: 'kids' | 'beginner' | 'advanced';
 		};
 	};

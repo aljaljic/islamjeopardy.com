@@ -39,7 +39,7 @@
 			</div>
 			<h1 class="mb-2 text-3xl font-bold sm:text-4xl">Play Now</h1>
 			<p class="text-lg text-muted-foreground">
-				Select the number of teams and start playing immediately!
+				Select the number of players and start playing immediately!
 			</p>
 		</div>
 
@@ -80,7 +80,7 @@
 				<CardHeader>
 					<CardTitle>Quick Setup</CardTitle>
 					<CardDescription>
-						Choose your game and number of teams to start playing
+						Choose your game and number of players to start playing
 					</CardDescription>
 				</CardHeader>
 				<CardContent class="space-y-6">
@@ -110,19 +110,19 @@
 						{/if}
 					</div>
 
-					<!-- Team Count Selection -->
+					<!-- Player Count Selection -->
 					<div class="space-y-2">
-						<label for="team-count" class="text-sm font-medium flex items-center gap-2">
+						<label for="player-count" class="text-sm font-medium flex items-center gap-2">
 							<Users class="h-4 w-4 text-primary" />
-							Number of Teams
+							Number of Players
 						</label>
-						<Select id="team-count" bind:value={teamCount} class="w-full touch-target">
+						<Select id="player-count" bind:value={teamCount} class="w-full touch-target">
 							{#each [1, 2, 3, 4, 5, 6, 7, 8] as num}
-								<option value={num}>{num} Team{num > 1 ? 's' : ''}</option>
+								<option value={num}>{num} Player{num > 1 ? 's' : ''}</option>
 							{/each}
 						</Select>
 						<p class="text-xs text-muted-foreground">
-							Each team can have multiple players. Select how many teams will compete.
+							Select how many players will compete.
 						</p>
 					</div>
 

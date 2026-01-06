@@ -10,7 +10,8 @@
 		FolderOpen,
 		LogIn,
 		UserPlus,
-		LogOut
+		LogOut,
+		Trophy
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 
@@ -63,6 +64,10 @@
 			<a href="/" class={navLinkClass('/')}>
 				<Home class="h-4 w-4" />
 				<span>Home</span>
+			</a>
+			<a href="/leaderboard" class={navLinkClass('/leaderboard')}>
+				<Trophy class="h-4 w-4" />
+				<span>Leaderboard</span>
 			</a>
 
 			{#if session}
@@ -119,6 +124,10 @@
 		<a href="/play-now" class={navLinkClass('/play-now')} onclick={() => (mobileMenuOpen = false)}>
 			<Gamepad2 class="h-5 w-5" />
 			<span>Play Now</span>
+		</a>
+		<a href="/leaderboard" class={navLinkClass('/leaderboard')} onclick={() => (mobileMenuOpen = false)}>
+			<Trophy class="h-5 w-5" />
+			<span>Leaderboard</span>
 		</a>
 
 		{#if session}

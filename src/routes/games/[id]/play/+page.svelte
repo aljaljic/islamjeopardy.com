@@ -7,6 +7,9 @@
 	import { Trophy, Medal, Lightbulb, AlertTriangle, PartyPopper } from 'lucide-svelte';
 	import { untrack } from 'svelte';
 	import { scale } from 'svelte/transition';
+	import { leaderboard, familyName } from '$lib/stores/leaderboard';
+	import { get } from 'svelte/store';
+	import { page } from '$app/stores';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -42,7 +45,7 @@
 		points: number;
 	} | null>(null);
 
-	// Team name editing state
+	// Player name editing state
 	let editingTeamIndex = $state<number | null>(null);
 	let editingTeamName = $state('');
 
@@ -50,12 +53,15 @@
 	let playerCount = $state(data.initialTeamCount ?? 1);
 	let playerNames = $state<string[]>(
 		data.initialTeamCount
-			? Array.from({ length: data.initialTeamCount }, (_, i) => `Team ${i + 1}`)
-			: ['Team 1']
+			? Array.from({ length: data.initialTeamCount }, (_, i) => `Player ${i + 1}`)
+			: ['Player 1']
 	);
 	
 	// Track previous count with non-reactive variable to avoid infinite loops
 	let previousCount = playerCount;
+
+	// Track if user manually exited to prevent auto-restart
+	let userExited = $state(false);
 
 	// Theme styles - Family-friendly with vibrant colors
 	const themes = {
@@ -77,7 +83,7 @@
 		}
 	};
 
-	// Update team names array when count changes
+	// Update player names array when count changes
 	// Only react to playerCount changes, using untrack to avoid infinite loops
 	$effect(() => {
 		const currentCount = playerCount;
@@ -85,9 +91,9 @@
 			// Use untrack to read playerNames without making it a dependency
 			const currentNames = untrack(() => playerNames);
 			const newNames = [...currentNames];
-			// Add new teams if count increased
+			// Add new players if count increased
 			while (newNames.length < currentCount) {
-				newNames.push(`Team ${newNames.length + 1}`);
+				newNames.push(`Player ${newNames.length + 1}`);
 			}
 			// Trim if count decreased
 			playerNames = newNames.slice(0, currentCount);
@@ -95,10 +101,17 @@
 		}
 	});
 
+	// Auto-start game when coming from quick setup (has initialTeamCount)
+	$effect(() => {
+		if (data.initialTeamCount && gamePhase === 'setup' && !userExited) {
+			startGame();
+		}
+	});
+
 	function startGame() {
 		players = playerNames.map((name, i) => ({
 			id: `player-${i}`,
-			name: name || `Team ${i + 1}`,
+			name: name || `Player ${i + 1}`,
 			score: 0
 		}));
 		
@@ -235,10 +248,11 @@
 		currentPlayerIndex = 0;
 		currentQuestion = null;
 		lastAnsweredQuestion = null;
+		userExited = true;
 		gamePhase = 'setup';
 	}
 
-	// Team name editing functions
+	// Player name editing functions
 	function startEditingTeam(index: number) {
 		editingTeamIndex = index;
 		editingTeamName = players[index].name;
@@ -265,6 +279,58 @@
 			cancelEditingTeam();
 		}
 	}
+
+	// Track if we've saved results for this game
+	let resultsSaved = $state(false);
+
+	// Save game results to leaderboard when game finishes
+	async function saveGameResults() {
+		if (resultsSaved || players.length === 0) return;
+
+		const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+		const highestScore = sortedPlayers[0]?.score ?? 0;
+		const currentFamilyName = get(familyName);
+
+		// Save to local leaderboard
+		leaderboard.addResult({
+			gameTitle: data.game.title,
+			gameId: data.game.id,
+			familyName: currentFamilyName,
+			teams: players.map((p) => ({
+				name: p.name,
+				score: p.score,
+				isWinner: p.score === highestScore && highestScore > 0
+			})),
+			totalQuestions: 25
+		});
+
+		// Increment play count in database
+		const supabase = $page.data.supabase;
+		if (supabase) {
+			// Get current play count and increment
+			const { data: gameData } = await supabase
+				.from('games')
+				.select('total_plays')
+				.eq('id', data.game.id)
+				.single();
+
+			if (gameData) {
+				await supabase
+					.from('games')
+					.update({ total_plays: (gameData.total_plays || 0) + 1 })
+					.eq('id', data.game.id);
+			}
+		}
+
+		resultsSaved = true;
+	}
+
+	// Effect to save results when game finishes
+	$effect(() => {
+		if (gamePhase === 'finished' && !resultsSaved) {
+			saveGameResults();
+		}
+	});
 
 	const currentTheme = $derived(themes[theme]);
 </script>
@@ -311,22 +377,22 @@
 
 					<!-- Player Count -->
 					<div class="space-y-2">
-						<label for="player-count" class="text-sm font-medium">Number of Teams</label>
+						<label for="player-count" class="text-sm font-medium">Number of Players</label>
 						<Select id="player-count" bind:value={playerCount} class="w-full">
 							{#each [1, 2, 3, 4, 5, 6, 7, 8] as num}
-								<option value={num}>{num} Team{num > 1 ? 's' : ''}</option>
+								<option value={num}>{num} Player{num > 1 ? 's' : ''}</option>
 							{/each}
 						</Select>
 						<p class="text-xs text-muted-foreground">
-							Each team can have multiple players. Select how many teams will compete.
+							Select how many players will compete.
 						</p>
 					</div>
 
-					<!-- Team Names -->
+					<!-- Player Names -->
 					<div class="space-y-2">
-						<span class="text-sm font-medium">Team Names</span>
+						<span class="text-sm font-medium">Player Names</span>
 						{#each { length: playerCount } as _, i}
-							<Input bind:value={playerNames[i]} placeholder={`Team ${i + 1}`} aria-label={`Team ${i + 1} name`} />
+							<Input bind:value={playerNames[i]} placeholder={`Player ${i + 1}`} aria-label={`Player ${i + 1} name`} />
 						{/each}
 					</div>
 
@@ -414,14 +480,14 @@
 								onkeydown={handleTeamNameKeydown}
 								onblur={saveTeamName}
 								class="w-full min-w-[80px] max-w-[120px] rounded border-2 border-white/50 bg-white/20 px-2 py-1 text-center text-sm font-bold text-white placeholder-white/70 focus:border-white focus:outline-none md:text-base"
-								placeholder="Team name"
+								placeholder="Player name"
 								autofocus
 							/>
 						{:else}
 							<button
 								onclick={() => startEditingTeam(i)}
 								class="text-sm font-bold md:text-base mb-1 hover:underline cursor-pointer focus:outline-none focus:underline"
-								title="Click to rename team"
+								title="Click to rename player"
 							>
 								{player.name}
 							</button>
@@ -621,6 +687,13 @@
 							<Button class="w-full font-bold shadow-md hover:shadow-lg transition-all">Back to Game</Button>
 						</a>
 					</div>
+
+					<a href="/leaderboard" class="block pt-2">
+						<Button variant="ghost" class="w-full text-muted-foreground hover:text-primary">
+							<Trophy class="h-4 w-4 mr-2" />
+							View Family Leaderboard
+						</Button>
+					</a>
 				</CardContent>
 			</Card>
 		</div>
