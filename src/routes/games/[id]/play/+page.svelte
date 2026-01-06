@@ -4,7 +4,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Select } from '$lib/components/ui/select';
 	import { Switch } from '$lib/components/ui/switch';
-	import { Trophy, Medal, Lightbulb, AlertTriangle, PartyPopper, Share2 } from 'lucide-svelte';
+	import { Trophy, Medal, Lightbulb, AlertTriangle, PartyPopper, Share2, Maximize2, Minimize2 } from 'lucide-svelte';
 	import { toast } from '$lib/stores/toast';
 	import { untrack } from 'svelte';
 	import { scale } from 'svelte/transition';
@@ -63,6 +63,32 @@
 
 	// Track if user manually exited to prevent auto-restart
 	let userExited = $state(false);
+
+	// Fullscreen mode for TV display
+	let isFullscreen = $state(false);
+
+	function toggleFullscreen() {
+		if (!document.fullscreenElement) {
+			document.documentElement.requestFullscreen().then(() => {
+				isFullscreen = true;
+			}).catch(() => {
+				toast.error('Could not enter fullscreen');
+			});
+		} else {
+			document.exitFullscreen().then(() => {
+				isFullscreen = false;
+			});
+		}
+	}
+
+	// Listen for fullscreen changes (e.g., user presses Escape)
+	$effect(() => {
+		function handleFullscreenChange() {
+			isFullscreen = !!document.fullscreenElement;
+		}
+		document.addEventListener('fullscreenchange', handleFullscreenChange);
+		return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+	});
 
 	// Theme styles - Family-friendly with vibrant colors
 	const themes = {
@@ -394,10 +420,23 @@
 			</h1>
 			{#if gamePhase !== 'setup'}
 				<div class="flex shrink-0 gap-2">
-					<Select bind:value={theme} class="w-32 bg-background text-foreground text-sm">
+					<Select bind:value={theme} class="w-28 lg:w-32 bg-background text-foreground text-sm">
 						<option value="modern">Modern</option>
 						<option value="islamic">Islamic</option>
 					</Select>
+					<Button
+						variant="outline"
+						size="sm"
+						onclick={toggleFullscreen}
+						title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen (TV mode)'}
+						class="hidden sm:flex"
+					>
+						{#if isFullscreen}
+							<Minimize2 class="h-4 w-4" />
+						{:else}
+							<Maximize2 class="h-4 w-4" />
+						{/if}
+					</Button>
 					<Button variant="outline" size="sm" onclick={backToSetup}>Exit</Button>
 				</div>
 			{/if}
@@ -512,11 +551,11 @@
 		{/if}
 
 		<!-- Score Display -->
-		<div class="container mx-auto mb-6">
-			<div class="flex flex-wrap justify-center gap-3 md:gap-4">
+		<div class="container mx-auto mb-4 md:mb-6 xl:mb-8">
+			<div class="flex flex-wrap justify-center gap-3 md:gap-4 xl:gap-6">
 				{#each players as player, i}
 					<div
-						class="rounded-xl border-2 px-4 py-3 text-center shadow-lg transition-all transform hover:scale-105 {currentTheme.scoreCard}
+						class="rounded-xl border-2 px-4 py-3 xl:px-6 xl:py-4 text-center shadow-lg transition-all transform hover:scale-105 {currentTheme.scoreCard}
 							{i === currentPlayerIndex ? 'ring-4 ring-yellow-400 ring-offset-2 scale-110 shadow-2xl' : 'hover:shadow-xl'}"
 					>
 						{#if editingTeamIndex === i}
@@ -525,32 +564,32 @@
 								bind:value={editingTeamName}
 								onkeydown={handleTeamNameKeydown}
 								onblur={saveTeamName}
-								class="w-full min-w-[80px] max-w-[120px] rounded border-2 border-white/50 bg-white/20 px-2 py-1 text-center text-sm font-bold text-white placeholder-white/70 focus:border-white focus:outline-none md:text-base"
+								class="w-full min-w-[80px] max-w-[120px] xl:min-w-[100px] xl:max-w-[160px] rounded border-2 border-white/50 bg-white/20 px-2 py-1 text-center text-sm font-bold text-white placeholder-white/70 focus:border-white focus:outline-none md:text-base xl:text-lg"
 								placeholder="Player name"
 								autofocus
 							/>
 						{:else}
 							<button
 								onclick={() => startEditingTeam(i)}
-								class="text-sm font-bold md:text-base mb-1 hover:underline cursor-pointer focus:outline-none focus:underline"
+								class="text-sm font-bold md:text-base xl:text-xl 2xl:text-2xl mb-1 hover:underline cursor-pointer focus:outline-none focus:underline"
 								title="Click to rename player"
 							>
 								{player.name}
 							</button>
 						{/if}
-						<p class="text-2xl font-extrabold md:text-3xl">{player.score}</p>
+						<p class="text-2xl font-extrabold md:text-3xl xl:text-4xl 2xl:text-5xl">{player.score}</p>
 					</div>
 				{/each}
 			</div>
 		</div>
 
 		<!-- Game Board Grid -->
-		<div class="container mx-auto overflow-x-auto pb-4">
-			<div class="grid min-w-[320px] grid-cols-5 gap-1 md:gap-2">
+		<div class="container mx-auto overflow-x-auto pb-4 xl:max-w-6xl 2xl:max-w-7xl">
+			<div class="grid min-w-[320px] grid-cols-5 gap-1 md:gap-2 xl:gap-3 2xl:gap-4">
 				<!-- Category Headers -->
 				{#each data.categories as category}
 					<div
-						class="border-b-2 p-1 text-center text-[10px] font-bold uppercase md:p-3 md:text-xs lg:text-sm {currentTheme.category}"
+						class="border-b-2 p-1 text-center text-[10px] font-bold uppercase md:p-3 md:text-xs lg:text-sm xl:text-base xl:p-4 2xl:text-lg 2xl:p-5 {currentTheme.category}"
 					>
 						<span class="line-clamp-2">{category.name}</span>
 					</div>
@@ -565,7 +604,7 @@
 						<button
 							onclick={() => selectQuestion(colIndex, rowIndex)}
 							disabled={isAnswered}
-							class="jeopardy-card aspect-square min-h-[48px] border text-lg font-bold relative md:min-h-[70px] md:text-2xl lg:min-h-[90px] lg:text-3xl
+							class="jeopardy-card aspect-square min-h-[48px] border text-lg font-bold relative md:min-h-[70px] md:text-2xl lg:min-h-[90px] lg:text-3xl xl:min-h-[120px] xl:text-4xl 2xl:min-h-[140px] 2xl:text-5xl
 								{isAnswered ? currentTheme.cellAnswered + ' cursor-default opacity-50' : currentTheme.cell + ' cursor-pointer'}"
 						>
 							{question.points}
@@ -580,19 +619,19 @@
 	{#if gamePhase === 'question' && currentQuestion}
 		<div class="container mx-auto flex min-h-[60vh] items-center justify-center px-4">
 			<div in:scale={{ start: 0.3, duration: 400, easing: (t) => t * (2 - t) }}>
-				<Card class="w-full max-w-2xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
-				<CardHeader class="pb-4">
-					<div class="mb-3 flex items-center justify-between">
-						<span class="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">{currentQuestion.categoryName}</span>
-						<span class="rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 text-lg font-bold text-white shadow-md border-2 border-blue-500/50">{currentQuestion.points} Points</span>
+				<Card class="w-full max-w-2xl xl:max-w-4xl 2xl:max-w-5xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
+				<CardHeader class="pb-4 xl:pb-6">
+					<div class="mb-3 xl:mb-4 flex items-center justify-between">
+						<span class="rounded-full bg-primary/10 px-3 py-1 xl:px-4 xl:py-2 text-sm xl:text-base 2xl:text-lg font-semibold text-primary">{currentQuestion.categoryName}</span>
+						<span class="rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 xl:px-6 xl:py-3 text-lg xl:text-xl 2xl:text-2xl font-bold text-white shadow-md border-2 border-blue-500/50">{currentQuestion.points} Points</span>
 					</div>
-					<CardTitle class="text-2xl md:text-3xl leading-tight text-foreground">{currentQuestion.question_text}</CardTitle>
+					<CardTitle class="text-2xl md:text-3xl xl:text-4xl 2xl:text-5xl leading-tight text-foreground">{currentQuestion.question_text}</CardTitle>
 				</CardHeader>
-				<CardContent class="pt-2">
-					<p class="mb-6 text-center text-lg font-medium text-muted-foreground">
+				<CardContent class="pt-2 xl:pt-4">
+					<p class="mb-6 xl:mb-8 text-center text-lg xl:text-xl 2xl:text-2xl font-medium text-muted-foreground">
 						{players[currentPlayerIndex].name}'s turn
 					</p>
-					<Button class="min-h-[64px] w-full text-lg font-bold shadow-lg hover:shadow-xl transition-all" onclick={showAnswer}>Show Answer</Button>
+					<Button class="min-h-[64px] xl:min-h-[80px] 2xl:min-h-[96px] w-full text-lg xl:text-xl 2xl:text-2xl font-bold shadow-lg hover:shadow-xl transition-all" onclick={showAnswer}>Show Answer</Button>
 				</CardContent>
 			</Card>
 			</div>
@@ -604,48 +643,48 @@
 		{@const isDoubleJeopardy = doubleJeopardyQuestions.has(currentQuestion.id)}
 		{@const displayPoints = isDoubleJeopardy ? currentQuestion.points * 2 : currentQuestion.points}
 		<div class="container mx-auto flex min-h-[60vh] items-center justify-center px-4">
-			<Card class="w-full max-w-2xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
-				<CardHeader class="pb-4">
-					<div class="mb-2 flex items-center justify-between">
-						<CardTitle class="text-xl md:text-2xl leading-tight">{currentQuestion.question_text}</CardTitle>
+			<Card class="w-full max-w-2xl xl:max-w-4xl 2xl:max-w-5xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
+				<CardHeader class="pb-4 xl:pb-6">
+					<div class="mb-2 xl:mb-4 flex items-center justify-between gap-4">
+						<CardTitle class="text-xl md:text-2xl xl:text-3xl 2xl:text-4xl leading-tight">{currentQuestion.question_text}</CardTitle>
 						{#if isDoubleJeopardy}
-							<span class="rounded-full bg-yellow-400 px-3 py-1 text-sm font-bold text-yellow-900">2x Double Jeopardy</span>
+							<span class="rounded-full bg-yellow-400 px-3 py-1 xl:px-4 xl:py-2 text-sm xl:text-base font-bold text-yellow-900 shrink-0">2x Double Jeopardy</span>
 						{/if}
 					</div>
 				</CardHeader>
-				<CardContent class="space-y-6">
-					<div class="rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border-2 border-primary/30 p-6 md:p-8 shadow-lg">
-						<p class="text-center text-xl md:text-2xl font-bold text-primary">
+				<CardContent class="space-y-6 xl:space-y-8">
+					<div class="rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border-2 border-primary/30 p-6 md:p-8 xl:p-10 2xl:p-12 shadow-lg">
+						<p class="text-center text-xl md:text-2xl xl:text-3xl 2xl:text-4xl font-bold text-primary">
 							{currentQuestion.answer_text}
 						</p>
 					</div>
 
 					{#if currentQuestion.explanation}
-						<div class="rounded-lg bg-blue-50 border-2 border-blue-200 p-4 md:p-5">
-							<p class="text-sm font-semibold text-blue-900 mb-2 flex items-center gap-2">
-								<Lightbulb class="h-4 w-4" />
+						<div class="rounded-lg bg-blue-50 border-2 border-blue-200 p-4 md:p-5 xl:p-6">
+							<p class="text-sm xl:text-base font-semibold text-blue-900 mb-2 flex items-center gap-2">
+								<Lightbulb class="h-4 w-4 xl:h-5 xl:w-5" />
 								Did you know?
 							</p>
-							<p class="text-sm md:text-base text-blue-800 leading-relaxed">
+							<p class="text-sm md:text-base xl:text-lg 2xl:text-xl text-blue-800 leading-relaxed">
 								{currentQuestion.explanation}
 							</p>
 						</div>
 					{/if}
 
-					<p class="text-center text-lg font-semibold text-muted-foreground">
+					<p class="text-center text-lg xl:text-xl 2xl:text-2xl font-semibold text-muted-foreground">
 						{players[currentPlayerIndex].name}'s answer
 					</p>
 
 					{#if isDoubleJeopardy}
-						<div class="rounded-lg bg-yellow-50 border-2 border-yellow-300 p-3">
-							<p class="text-sm font-semibold text-yellow-900 text-center">
-								<AlertTriangle class="inline h-4 w-4 mr-1" />
+						<div class="rounded-lg bg-yellow-50 border-2 border-yellow-300 p-3 xl:p-4">
+							<p class="text-sm xl:text-base font-semibold text-yellow-900 text-center">
+								<AlertTriangle class="inline h-4 w-4 xl:h-5 xl:w-5 mr-1" />
 							Double Jeopardy: Wrong answer will deduct {displayPoints} points!
 							</p>
 						</div>
 					{/if}
 
-					<div class="flex flex-col md:grid md:grid-cols-2 gap-3 md:gap-4 w-full">
+					<div class="flex flex-col md:grid md:grid-cols-2 gap-3 md:gap-4 xl:gap-6 w-full">
 						<Button
 							size="lg"
 							onclick={() => handleAnswer(false)}
