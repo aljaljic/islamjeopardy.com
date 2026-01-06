@@ -4,7 +4,9 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ params, url, locals: { supabase, safeGetSession } }) => {
 	const { session } = await safeGetSession();
 	const teamsParam = url.searchParams.get('teams');
+	const djParam = url.searchParams.get('dj');
 	const initialTeamCount = teamsParam ? Math.max(1, Math.min(8, parseInt(teamsParam) || 2)) : null;
+	const initialDoubleJeopardy = djParam !== null ? djParam === '1' : null;
 
 	// Fetch game with categories
 	const { data: game, error: gameError } = await supabase
@@ -77,6 +79,7 @@ export const load: PageServerLoad = async ({ params, url, locals: { supabase, sa
 		},
 		categories,
 		session,
-		initialTeamCount
+		initialTeamCount,
+		initialDoubleJeopardy
 	};
 };

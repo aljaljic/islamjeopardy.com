@@ -2,6 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Select } from '$lib/components/ui/select';
+	import { Switch } from '$lib/components/ui/switch';
 	import { goto } from '$app/navigation';
 	import { Gamepad2, Star, Users, TrendingUp, User, Database, AlertCircle, ArrowRight } from 'lucide-svelte';
 	import type { PageData } from './$types';
@@ -9,7 +10,13 @@
 	let { data }: { data: PageData } = $props();
 
 	let teamCount = $state(2);
-	let selectedGameId = $state<string | null>(data.games.length > 0 ? data.games[0].id : null);
+	// Use game ID from URL param if provided, otherwise default to first game
+	let selectedGameId = $state<string | null>(
+		data.selectedGameId && data.games.some(g => g.id === data.selectedGameId)
+			? data.selectedGameId
+			: data.games.length > 0 ? data.games[0].id : null
+	);
+	let doubleJeopardyEnabled = $state(true);
 
 	// Difficulty badge colors
 	const difficultyColors: Record<string, string> = {
@@ -21,7 +28,7 @@
 
 	function startPlaying() {
 		if (selectedGameId && teamCount >= 1 && teamCount <= 8) {
-			goto(`/games/${selectedGameId}/play?teams=${teamCount}`);
+			goto(`/games/${selectedGameId}/play?teams=${teamCount}&dj=${doubleJeopardyEnabled ? '1' : '0'}`);
 		}
 	}
 </script>
@@ -126,6 +133,27 @@
 						</p>
 					</div>
 
+					<!-- Double Jeopardy Toggle -->
+					<div class="rounded-lg border-2 border-primary/30 bg-background p-4">
+						<div class="flex items-center justify-between gap-4">
+							<div class="flex-1">
+								<p class="text-sm font-semibold mb-1 text-foreground">
+									Double Jeopardy Mode
+								</p>
+								<p class="text-xs text-muted-foreground">
+									Random cards worth 2x points. Wrong answers deduct points.
+								</p>
+							</div>
+							<div class="shrink-0 flex items-center gap-2">
+								<span class="text-xs font-medium {doubleJeopardyEnabled ? 'text-muted-foreground' : 'text-red-600 font-bold'}">OFF</span>
+								<div class="double-jeopardy-switch-wrapper">
+									<Switch bind:checked={doubleJeopardyEnabled} aria-label="Enable Double Jeopardy Mode" class="scale-110" />
+								</div>
+								<span class="text-xs font-medium {doubleJeopardyEnabled ? 'text-green-600 font-bold' : 'text-muted-foreground'}">ON</span>
+							</div>
+						</div>
+					</div>
+
 					<Button
 						class="w-full min-h-[56px] text-lg font-bold gradient-primary border-0 text-white shadow-lg shadow-primary/25 active:shadow-primary/15 active:scale-[0.98] transition-all touch-target"
 						onclick={startPlaying}
@@ -173,3 +201,21 @@
 		{/if}
 	</div>
 </div>
+
+<style>
+	/* Make Switch toggle red/green */
+	.double-jeopardy-switch-wrapper :global(button[role="switch"]) {
+		border: 3px solid #000000 !important;
+		background-color: #ef4444 !important;
+	}
+
+	.double-jeopardy-switch-wrapper :global(button[role="switch"][aria-checked="true"]) {
+		border: 3px solid #000000 !important;
+		background-color: #22c55e !important;
+	}
+
+	.double-jeopardy-switch-wrapper :global(button[role="switch"] span) {
+		background-color: white !important;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+	}
+</style>

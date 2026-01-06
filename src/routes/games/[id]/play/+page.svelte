@@ -26,8 +26,8 @@
 	let currentPlayerIndex = $state(0);
 	let answeredQuestions = $state<Set<string>>(new Set());
 	
-	// Double Jeopardy mode
-	let doubleJeopardyEnabled = $state(false);
+	// Double Jeopardy mode - default to initialDoubleJeopardy if coming from quick setup
+	let doubleJeopardyEnabled = $state(data.initialDoubleJeopardy ?? false);
 	let doubleJeopardyQuestions = $state<Set<string>>(new Set());
 
 	// Current question state
