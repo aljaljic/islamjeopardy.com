@@ -4,9 +4,8 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Select } from '$lib/components/ui/select';
 	import { Switch } from '$lib/components/ui/switch';
-	import { Trophy, Medal, Lightbulb, AlertTriangle, PartyPopper, Download } from 'lucide-svelte';
+	import { Trophy, Medal, Lightbulb, AlertTriangle, PartyPopper, Share2 } from 'lucide-svelte';
 	import { toast } from '$lib/stores/toast';
-	import { toPng } from 'html-to-image';
 	import { untrack } from 'svelte';
 	import { scale } from 'svelte/transition';
 	import { leaderboard, familyName } from '$lib/stores/leaderboard';
@@ -285,9 +284,6 @@
 	// Track if we've saved results for this game
 	let resultsSaved = $state(false);
 
-	// Reference to shareable award card for image generation
-	let awardCardRef = $state<HTMLDivElement | null>(null);
-
 	// Save game results to leaderboard when game finishes
 	async function saveGameResults() {
 		if (resultsSaved || players.length === 0) return;
@@ -330,30 +326,48 @@
 		resultsSaved = true;
 	}
 
-	// Download award card as image
-	async function downloadAwardImage() {
-		if (!awardCardRef) {
-			toast.error('Could not generate image');
-			return;
+	// Share game results using Web Share API
+	async function shareResults() {
+		const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+		const winner = sortedPlayers[0];
+
+		// Build results text with medals
+		const resultsText = sortedPlayers
+			.map((p, i) => {
+				const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+				return `${medal} ${p.name}: ${p.score} pts`;
+			})
+			.join('\n');
+
+		const shareText = `🎉 We played Islamic Jeopardy!\n\n🎮 Game: ${data.game.title}\n\n${resultsText}\n\n🏆 Winner: ${winner.name} with ${winner.score} points!\n\n🕌 Play at islamjeopardy.com`;
+
+		// Try Web Share API first
+		if (navigator.share) {
+			try {
+				await navigator.share({
+					title: `Islamic Jeopardy - ${data.game.title}`,
+					text: shareText,
+					url: `https://islamjeopardy.com/games/${data.game.id}`
+				});
+				toast.success('Shared successfully!');
+			} catch (err) {
+				// User cancelled - don't show error
+				if ((err as Error).name !== 'AbortError') {
+					await copyToClipboard(shareText);
+				}
+			}
+		} else {
+			// Fallback to clipboard
+			await copyToClipboard(shareText);
 		}
+	}
 
+	async function copyToClipboard(text: string) {
 		try {
-			const dataUrl = await toPng(awardCardRef, {
-				quality: 1,
-				pixelRatio: 2, // Higher resolution for social media
-				backgroundColor: '#1a1a2e' // Dark background
-			});
-
-			// Create download link
-			const link = document.createElement('a');
-			link.download = `islamic-jeopardy-${data.game.title.toLowerCase().replace(/\s+/g, '-')}-results.png`;
-			link.href = dataUrl;
-			link.click();
-
-			toast.success('Award image downloaded!');
-		} catch (err) {
-			console.error('Failed to generate image:', err);
-			toast.error('Could not generate image');
+			await navigator.clipboard.writeText(text);
+			toast.success('Results copied to clipboard!');
+		} catch {
+			toast.error('Could not copy to clipboard');
 		}
 	}
 
@@ -674,11 +688,8 @@
 	<!-- Finished Phase -->
 	{#if gamePhase === 'finished'}
 		<div class="container mx-auto flex flex-col items-center justify-center px-2 sm:px-4 py-4 sm:py-8 gap-4 sm:gap-6">
-			<!-- Shareable Award Card -->
-			<div
-				bind:this={awardCardRef}
-				class="award-card w-full max-w-sm sm:max-w-md rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl"
-			>
+			<!-- Award Card -->
+			<div class="award-card w-full max-w-sm sm:max-w-md rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl">
 				<!-- Header with logo and site -->
 				<div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-4 sm:px-6 py-3 sm:py-4 text-center">
 					<div class="flex items-center justify-center gap-2 mb-0.5 sm:mb-1">
@@ -744,13 +755,13 @@
 			<!-- Action Buttons (not included in screenshot) -->
 			<Card class="w-full max-w-sm sm:max-w-md shadow-xl border-2 border-primary/20">
 				<CardContent class="pt-4 sm:pt-6 space-y-3 sm:space-y-4">
-					<!-- Download Button -->
+					<!-- Share Button -->
 					<Button
-						onclick={downloadAwardImage}
+						onclick={shareResults}
 						class="w-full min-h-[48px] sm:min-h-[52px] text-sm sm:text-base font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white border-0 shadow-lg hover:shadow-xl transition-all touch-target"
 					>
-						<Download class="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-						Download Award Image
+						<Share2 class="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+						Share Results
 					</Button>
 
 					<div class="grid grid-cols-2 gap-2 sm:gap-3">
