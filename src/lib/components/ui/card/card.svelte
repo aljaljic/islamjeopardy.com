@@ -9,7 +9,7 @@
 </script>
 
 <div
-	class={cn('rounded-lg border bg-card text-card-foreground shadow-sm', className)}
+	class={cn('rounded-xl border bg-card text-card-foreground shadow-sm transition-all duration-200', className)}
 	{...restProps}
 >
 	{@render children?.()}

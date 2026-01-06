@@ -47,6 +47,7 @@
 		"@supabase/ssr": "^0.8.0",
 		"@supabase/supabase-js": "^2.89.0",
 		"clsx": "^2.1.1",
+		"lucide-svelte": "^0.562.0",
 		"tailwind-merge": "^3.4.0",
 		"zod": "^4.3.5"
 	}

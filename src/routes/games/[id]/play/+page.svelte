@@ -4,6 +4,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Select } from '$lib/components/ui/select';
 	import { Switch } from '$lib/components/ui/switch';
+	import { Trophy, Medal, Lightbulb, AlertTriangle, PartyPopper } from 'lucide-svelte';
 	import { untrack } from 'svelte';
 	import { scale } from 'svelte/transition';
 	import type { PageData } from './$types';
@@ -509,7 +510,10 @@
 
 					{#if currentQuestion.explanation}
 						<div class="rounded-lg bg-blue-50 border-2 border-blue-200 p-4 md:p-5">
-							<p class="text-sm font-semibold text-blue-900 mb-2">💡 Did you know?</p>
+							<p class="text-sm font-semibold text-blue-900 mb-2 flex items-center gap-2">
+								<Lightbulb class="h-4 w-4" />
+								Did you know?
+							</p>
 							<p class="text-sm md:text-base text-blue-800 leading-relaxed">
 								{currentQuestion.explanation}
 							</p>
@@ -523,7 +527,8 @@
 					{#if isDoubleJeopardy}
 						<div class="rounded-lg bg-yellow-50 border-2 border-yellow-300 p-3">
 							<p class="text-sm font-semibold text-yellow-900 text-center">
-								⚠️ Double Jeopardy: Wrong answer will deduct {displayPoints} points!
+								<AlertTriangle class="inline h-4 w-4 mr-1" />
+							Double Jeopardy: Wrong answer will deduct {displayPoints} points!
 							</p>
 						</div>
 					{/if}
@@ -570,7 +575,9 @@
 			<Card class="w-full max-w-md shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
 				<CardHeader>
 					<CardTitle class="text-center text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-						🎉 Game Over! 🎉
+						<PartyPopper class="inline h-6 w-6 mr-2" />
+					Game Over!
+					<PartyPopper class="inline h-6 w-6 ml-2" />
 					</CardTitle>
 				</CardHeader>
 				<CardContent class="space-y-6">
@@ -583,8 +590,19 @@
 									 i === 2 ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white border-2 border-amber-500' :
 									 'bg-muted border-2 border-border'}"
 							>
-								<span class="font-bold text-lg">
-									{i === 0 ? '🥇 1st ' : i === 1 ? '🥈 2nd ' : i === 2 ? '🥉 3rd ' : `${i + 1}th `}{player.name}
+								<span class="font-bold text-lg flex items-center gap-2">
+									{#if i === 0}
+										<Trophy class="h-5 w-5 text-yellow-500" />
+										<span>1st {player.name}</span>
+									{:else if i === 1}
+										<Medal class="h-5 w-5 text-gray-400" />
+										<span>2nd {player.name}</span>
+									{:else if i === 2}
+										<Medal class="h-5 w-5 text-amber-600" />
+										<span>3rd {player.name}</span>
+									{:else}
+										<span>{i + 1}th {player.name}</span>
+									{/if}
 								</span>
 								<span class="text-2xl font-bold">{player.score}</span>
 							</div>
