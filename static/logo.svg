@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:hsl(160, 84%, 39%);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:hsl(180, 70%, 35%);stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Rounded square background with gradient -->
+  <rect width="64" height="64" rx="12" ry="12" fill="url(#gradient)"/>
+  <!-- Mosque/Masjid icon - dome on top -->
+  <g fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Base building structure -->
+    <rect x="16" y="38" width="32" height="14" fill="white" rx="1"/>
+    <!-- Central dome on top - semicircle pointing up -->
+    <path d="M32 38 Q 18 38, 18 30 Q 18 24, 24 22 Q 28 20, 32 20 Q 36 20, 40 22 Q 46 24, 46 30 Q 46 38, 32 38" fill="white"/>
+    <!-- Left minaret -->
+    <rect x="10" y="32" width="3" height="20" fill="white" rx="0.5"/>
+    <circle cx="11.5" cy="32" r="2" fill="white"/>
+    <!-- Right minaret -->
+    <rect x="51" y="32" width="3" height="20" fill="white" rx="0.5"/>
+    <circle cx="52.5" cy="32" r="2" fill="white"/>
+    <!-- Door -->
+    <rect x="28" y="46" width="8" height="6" fill="none" stroke="white" stroke-width="2"/>
+    <!-- Crescent moon on top -->
+    <path d="M32 18 C 30 18, 28.5 18.8, 28.5 20 C 28.5 21.2, 30 22, 32 22 C 34 22, 35.5 21.2, 35.5 20 C 35.5 18.8, 34 18, 32 18" fill="white"/>
+  </g>
+</svg>
+
