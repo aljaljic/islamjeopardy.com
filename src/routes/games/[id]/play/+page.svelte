@@ -533,24 +533,28 @@
 						</div>
 					{/if}
 
-					<div class="grid grid-cols-2 gap-4">
+					<div class="flex flex-col md:grid md:grid-cols-2 gap-3 md:gap-4 w-full">
 						<Button
 							size="lg"
 							onclick={() => handleAnswer(false)}
 							variant="outline"
-							class="min-h-[64px] text-lg font-bold border-2 hover:bg-red-50 hover:border-red-400 hover:text-red-600 transition-all shadow-md hover:shadow-lg"
+							class="w-full min-h-[56px] md:min-h-[64px] text-sm md:text-lg font-bold border-2 hover:bg-red-50 hover:border-red-400 hover:text-red-600 transition-all shadow-md hover:shadow-lg"
 						>
-							Subtract Points<br />
-							<span class="text-sm">(-{displayPoints})</span>
+							<div class="flex flex-col items-center justify-center">
+								<span>Subtract Points</span>
+								<span class="text-xs md:text-sm">(-{displayPoints})</span>
+							</div>
 						</Button>
 						<Button 
 							size="lg" 
 							onclick={() => handleAnswer(true)} 
 							variant="outline"
-							class="min-h-[64px] text-lg font-bold border-2 hover:bg-green-50 hover:border-green-400 hover:text-green-600 transition-all shadow-md hover:shadow-lg"
+							class="w-full min-h-[56px] md:min-h-[64px] text-sm md:text-lg font-bold border-2 hover:bg-green-50 hover:border-green-400 hover:text-green-600 transition-all shadow-md hover:shadow-lg"
 						>
-							Add Points<br />
-							<span class="text-sm">(+{displayPoints})</span>
+							<div class="flex flex-col items-center justify-center">
+								<span>Add Points</span>
+								<span class="text-xs md:text-sm">(+{displayPoints})</span>
+							</div>
 						</Button>
 					</div>
 
