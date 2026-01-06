@@ -42,9 +42,20 @@
 ```env
 PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 PUBLIC_SUPABASE_ANON_KEY=your-actual-anon-key-here
+RESEND_API_KEY=re_your-resend-api-key-here
 ```
 
-### 4. Generate TypeScript Types (Optional but Recommended)
+### 4. Configure Resend (for Feedback Form)
+
+1. Go to [https://resend.com](https://resend.com) and create an account
+2. Create an API key in the Resend dashboard
+3. Add the API key to your `.env` file as `RESEND_API_KEY`
+4. Verify your domain in Resend (or use the test domain for development)
+5. Update the `from` email address in `src/routes/feedback/+page.server.ts` to match your verified domain
+
+**Note:** For development, you can use Resend's test mode, but you'll need to verify a domain for production use.
+
+### 5. Generate TypeScript Types (Optional but Recommended)
 
 Run this command to generate accurate TypeScript types from your database:
 
@@ -56,7 +67,7 @@ Replace `YOUR_PROJECT_ID` with your actual project ID (from the Project URL).
 
 **Note:** I've already created placeholder types, so this step is optional but will provide more accurate types.
 
-### 5. Enable Email Auth in Supabase
+### 6. Enable Email Auth in Supabase
 
 1. Go to **Authentication** → **Providers** in your Supabase dashboard
 2. Enable **Email** provider (it should be enabled by default)
@@ -102,7 +113,7 @@ supabase/
 
 ## Ready to Continue?
 
-Once you've completed steps 1-3 above (create Supabase project, run schema, update .env), I can continue building:
+Once you've completed steps 1-4 above (create Supabase project, run schema, update .env, configure Resend), I can continue building:
 
 1. **Authentication system** (login, signup, protected routes)
 2. **shadcn-svelte UI components** (buttons, cards, forms, etc.)

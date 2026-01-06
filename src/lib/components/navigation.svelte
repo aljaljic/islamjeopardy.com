@@ -11,7 +11,8 @@
 		LogIn,
 		UserPlus,
 		LogOut,
-		Trophy
+		Trophy,
+		MessageSquare
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 
@@ -68,6 +69,10 @@
 			<a href="/leaderboard" class={navLinkClass('/leaderboard')}>
 				<Trophy class="h-4 w-4" />
 				<span>Leaderboard</span>
+			</a>
+			<a href="/feedback" class={navLinkClass('/feedback')}>
+				<MessageSquare class="h-4 w-4" />
+				<span>Feedback</span>
 			</a>
 
 			{#if session}
@@ -128,6 +133,10 @@
 		<a href="/leaderboard" class={navLinkClass('/leaderboard')} onclick={() => (mobileMenuOpen = false)}>
 			<Trophy class="h-5 w-5" />
 			<span>Leaderboard</span>
+		</a>
+		<a href="/feedback" class={navLinkClass('/feedback')} onclick={() => (mobileMenuOpen = false)}>
+			<MessageSquare class="h-5 w-5" />
+			<span>Feedback</span>
 		</a>
 
 		{#if session}
