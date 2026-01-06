@@ -37,7 +37,7 @@
 	<!-- Backdrop -->
 	<button
 		transition:fade={{ duration: 200 }}
-		class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm cursor-default"
+		class="fixed inset-0 z-50 bg-white cursor-default"
 		onclick={handleBackdropClick}
 		aria-label="Close menu"
 	></button>

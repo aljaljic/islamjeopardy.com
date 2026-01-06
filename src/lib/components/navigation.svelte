@@ -10,8 +10,7 @@
 		FolderOpen,
 		LogIn,
 		UserPlus,
-		LogOut,
-		Sparkles
+		LogOut
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 
@@ -36,7 +35,23 @@
 		<!-- Logo -->
 		<a href="/" class="flex items-center gap-2 group no-tap-highlight">
 			<div class="relative flex items-center justify-center w-10 h-10 rounded-xl gradient-primary shadow-lg shadow-primary/25 group-active:scale-95 transition-transform">
-				<Sparkles class="h-5 w-5 text-white" />
+				<!-- Mosque icon matching favicon -->
+				<svg class="h-5 w-5 text-white" viewBox="0 0 64 64" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+					<!-- Base building structure -->
+					<rect x="16" y="38" width="32" height="14" fill="currentColor" rx="1"/>
+					<!-- Central dome on top - semicircle pointing up -->
+					<path d="M32 38 Q 18 38, 18 30 Q 18 24, 24 22 Q 28 20, 32 20 Q 36 20, 40 22 Q 46 24, 46 30 Q 46 38, 32 38" fill="currentColor"/>
+					<!-- Left minaret -->
+					<rect x="10" y="32" width="3" height="20" fill="currentColor" rx="0.5"/>
+					<circle cx="11.5" cy="32" r="2" fill="currentColor"/>
+					<!-- Right minaret -->
+					<rect x="51" y="32" width="3" height="20" fill="currentColor" rx="0.5"/>
+					<circle cx="52.5" cy="32" r="2" fill="currentColor"/>
+					<!-- Door -->
+					<rect x="28" y="46" width="8" height="6" fill="none" stroke="currentColor" stroke-width="2"/>
+					<!-- Crescent moon on top -->
+					<path d="M32 18 C 30 18, 28.5 18.8, 28.5 20 C 28.5 21.2, 30 22, 32 22 C 34 22, 35.5 21.2, 35.5 20 C 35.5 18.8, 34 18, 32 18" fill="currentColor"/>
+				</svg>
 			</div>
 			<span class="text-xl font-bold text-gradient hidden sm:inline">
 				Islamic Jeopardy
