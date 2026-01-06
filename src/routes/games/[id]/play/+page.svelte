@@ -4,7 +4,9 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Select } from '$lib/components/ui/select';
 	import { Switch } from '$lib/components/ui/switch';
-	import { Trophy, Medal, Lightbulb, AlertTriangle, PartyPopper } from 'lucide-svelte';
+	import { Trophy, Medal, Lightbulb, AlertTriangle, PartyPopper, Download } from 'lucide-svelte';
+	import { toast } from '$lib/stores/toast';
+	import { toPng } from 'html-to-image';
 	import { untrack } from 'svelte';
 	import { scale } from 'svelte/transition';
 	import { leaderboard, familyName } from '$lib/stores/leaderboard';
@@ -283,6 +285,9 @@
 	// Track if we've saved results for this game
 	let resultsSaved = $state(false);
 
+	// Reference to shareable award card for image generation
+	let awardCardRef = $state<HTMLDivElement | null>(null);
+
 	// Save game results to leaderboard when game finishes
 	async function saveGameResults() {
 		if (resultsSaved || players.length === 0) return;
@@ -323,6 +328,33 @@
 		}
 
 		resultsSaved = true;
+	}
+
+	// Download award card as image
+	async function downloadAwardImage() {
+		if (!awardCardRef) {
+			toast.error('Could not generate image');
+			return;
+		}
+
+		try {
+			const dataUrl = await toPng(awardCardRef, {
+				quality: 1,
+				pixelRatio: 2, // Higher resolution for social media
+				backgroundColor: '#1a1a2e' // Dark background
+			});
+
+			// Create download link
+			const link = document.createElement('a');
+			link.download = `islamic-jeopardy-${data.game.title.toLowerCase().replace(/\s+/g, '-')}-results.png`;
+			link.href = dataUrl;
+			link.click();
+
+			toast.success('Award image downloaded!');
+		} catch (err) {
+			console.error('Failed to generate image:', err);
+			toast.error('Could not generate image');
+		}
 	}
 
 	// Effect to save results when game finishes
@@ -641,57 +673,99 @@
 
 	<!-- Finished Phase -->
 	{#if gamePhase === 'finished'}
-		<div class="container mx-auto flex min-h-[60vh] items-center justify-center px-4">
-			<Card class="w-full max-w-md shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
-				<CardHeader>
-					<CardTitle class="text-center text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-						<PartyPopper class="inline h-6 w-6 mr-2" />
-					Game Over!
-					<PartyPopper class="inline h-6 w-6 ml-2" />
-					</CardTitle>
-				</CardHeader>
-				<CardContent class="space-y-6">
-					<div class="space-y-3">
-						{#each [...players].sort((a, b) => b.score - a.score) as player, i}
-							<div
-								class="flex items-center justify-between rounded-xl p-4 shadow-md transition-all
-									{i === 0 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white border-2 border-yellow-300 scale-105' : 
-									 i === 1 ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-white border-2 border-gray-200' :
-									 i === 2 ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white border-2 border-amber-500' :
-									 'bg-muted border-2 border-border'}"
-							>
-								<span class="font-bold text-lg flex items-center gap-2">
-									{#if i === 0}
-										<Trophy class="h-5 w-5 text-yellow-500" />
-										<span>1st {player.name}</span>
-									{:else if i === 1}
-										<Medal class="h-5 w-5 text-gray-400" />
-										<span>2nd {player.name}</span>
-									{:else if i === 2}
-										<Medal class="h-5 w-5 text-amber-600" />
-										<span>3rd {player.name}</span>
-									{:else}
-										<span>{i + 1}th {player.name}</span>
-									{/if}
-								</span>
-								<span class="text-2xl font-bold">{player.score}</span>
-							</div>
-						{/each}
+		<div class="container mx-auto flex flex-col items-center justify-center px-2 sm:px-4 py-4 sm:py-8 gap-4 sm:gap-6">
+			<!-- Shareable Award Card -->
+			<div
+				bind:this={awardCardRef}
+				class="award-card w-full max-w-sm sm:max-w-md rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl"
+			>
+				<!-- Header with logo and site -->
+				<div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-4 sm:px-6 py-3 sm:py-4 text-center">
+					<div class="flex items-center justify-center gap-2 mb-0.5 sm:mb-1">
+						<div class="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/20 shadow-lg">
+							<svg class="h-4 w-4 sm:h-5 sm:w-5 text-white" viewBox="0 0 64 64" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+								<rect x="16" y="38" width="32" height="14" fill="currentColor" rx="1"/>
+								<path d="M32 38 Q 18 38, 18 30 Q 18 24, 24 22 Q 28 20, 32 20 Q 36 20, 40 22 Q 46 24, 46 30 Q 46 38, 32 38" fill="currentColor"/>
+								<rect x="10" y="32" width="3" height="20" fill="currentColor" rx="0.5"/>
+								<circle cx="11.5" cy="32" r="2" fill="currentColor"/>
+								<rect x="51" y="32" width="3" height="20" fill="currentColor" rx="0.5"/>
+								<circle cx="52.5" cy="32" r="2" fill="currentColor"/>
+								<rect x="28" y="46" width="8" height="6" fill="none" stroke="currentColor" stroke-width="2"/>
+								<path d="M32 18 C 30 18, 28.5 18.8, 28.5 20 C 28.5 21.2, 30 22, 32 22 C 34 22, 35.5 21.2, 35.5 20 C 35.5 18.8, 34 18, 32 18" fill="currentColor"/>
+							</svg>
+						</div>
+						<span class="text-lg sm:text-xl font-bold text-white">Islamic Jeopardy</span>
 					</div>
+					<p class="text-emerald-100 text-xs sm:text-sm">islamjeopardy.com</p>
+				</div>
 
-					<div class="grid grid-cols-2 gap-4 pt-2">
-						<Button variant="outline" onclick={resetGame} class="font-bold shadow-md hover:shadow-lg transition-all">
+				<!-- Game title -->
+				<div class="bg-gradient-to-b from-slate-800 to-slate-900 px-4 sm:px-6 py-3 sm:py-4 text-center border-b border-slate-700">
+					<p class="text-slate-400 text-xs sm:text-sm uppercase tracking-wider mb-0.5 sm:mb-1">Game Completed</p>
+					<h2 class="text-base sm:text-xl font-bold text-white leading-tight">{data.game.title}</h2>
+				</div>
+
+				<!-- Results -->
+				<div class="bg-slate-900 px-3 sm:px-6 py-3 sm:py-5 space-y-2 sm:space-y-3">
+					{#each [...players].sort((a, b) => b.score - a.score) as player, i}
+						<div
+							class="flex items-center justify-between rounded-lg sm:rounded-xl p-2.5 sm:p-3 transition-all
+								{i === 0 ? 'bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border-2 border-yellow-500/50' :
+								 i === 1 ? 'bg-gradient-to-r from-slate-400/10 to-slate-300/10 border border-slate-500/30' :
+								 i === 2 ? 'bg-gradient-to-r from-amber-700/20 to-orange-700/20 border border-amber-600/30' :
+								 'bg-slate-800/50 border border-slate-700/50'}"
+						>
+							<span class="font-bold text-sm sm:text-base flex items-center gap-1.5 sm:gap-2 truncate max-w-[60%]">
+								{#if i === 0}
+									<span class="text-lg sm:text-xl shrink-0">🥇</span>
+									<span class="text-yellow-400 truncate">{player.name}</span>
+								{:else if i === 1}
+									<span class="text-lg sm:text-xl shrink-0">🥈</span>
+									<span class="text-slate-300 truncate">{player.name}</span>
+								{:else if i === 2}
+									<span class="text-lg sm:text-xl shrink-0">🥉</span>
+									<span class="text-amber-400 truncate">{player.name}</span>
+								{:else}
+									<span class="text-slate-400 ml-1 shrink-0">{i + 1}.</span>
+									<span class="text-slate-300 truncate">{player.name}</span>
+								{/if}
+							</span>
+							<span class="text-lg sm:text-xl font-bold shrink-0 {i === 0 ? 'text-yellow-400' : i === 1 ? 'text-slate-300' : i === 2 ? 'text-amber-400' : 'text-slate-400'}">{player.score}</span>
+						</div>
+					{/each}
+				</div>
+
+				<!-- Footer -->
+				<div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-4 sm:px-6 py-2 sm:py-3 text-center">
+					<p class="text-emerald-100 text-[10px] sm:text-xs">Play Islamic trivia with family and friends!</p>
+				</div>
+			</div>
+
+			<!-- Action Buttons (not included in screenshot) -->
+			<Card class="w-full max-w-sm sm:max-w-md shadow-xl border-2 border-primary/20">
+				<CardContent class="pt-4 sm:pt-6 space-y-3 sm:space-y-4">
+					<!-- Download Button -->
+					<Button
+						onclick={downloadAwardImage}
+						class="w-full min-h-[48px] sm:min-h-[52px] text-sm sm:text-base font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white border-0 shadow-lg hover:shadow-xl transition-all touch-target"
+					>
+						<Download class="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+						Download Award Image
+					</Button>
+
+					<div class="grid grid-cols-2 gap-2 sm:gap-3">
+						<Button variant="outline" onclick={resetGame} class="font-bold shadow-md hover:shadow-lg transition-all text-sm sm:text-base touch-target">
 							Play Again
 						</Button>
 						<a href="/games/{data.game.id}">
-							<Button class="w-full font-bold shadow-md hover:shadow-lg transition-all">Back to Game</Button>
+							<Button class="w-full font-bold shadow-md hover:shadow-lg transition-all text-sm sm:text-base touch-target">Back to Game</Button>
 						</a>
 					</div>
 
-					<a href="/leaderboard" class="block pt-2">
-						<Button variant="ghost" class="w-full text-muted-foreground hover:text-primary">
+					<a href="/leaderboard" class="block">
+						<Button variant="ghost" class="w-full text-muted-foreground hover:text-primary text-sm sm:text-base">
 							<Trophy class="h-4 w-4 mr-2" />
-							View Family Leaderboard
+							View Leaderboard
 						</Button>
 					</a>
 				</CardContent>
