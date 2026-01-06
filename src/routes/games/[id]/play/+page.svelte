@@ -3,7 +3,9 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Select } from '$lib/components/ui/select';
+	import { Switch } from '$lib/components/ui/switch';
 	import { untrack } from 'svelte';
+	import { scale } from 'svelte/transition';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -19,6 +21,10 @@
 	let players = $state<Player[]>([]);
 	let currentPlayerIndex = $state(0);
 	let answeredQuestions = $state<Set<string>>(new Set());
+	
+	// Double Jeopardy mode
+	let doubleJeopardyEnabled = $state(false);
+	let doubleJeopardyQuestions = $state<Set<string>>(new Set());
 
 	// Current question state
 	let currentQuestion = $state<{
@@ -34,6 +40,10 @@
 	let lastAnsweredQuestion = $state<{
 		points: number;
 	} | null>(null);
+
+	// Team name editing state
+	let editingTeamIndex = $state<number | null>(null);
+	let editingTeamName = $state('');
 
 	// Setup state - initialize from query param if available
 	let playerCount = $state(data.initialTeamCount ?? 1);
@@ -90,6 +100,24 @@
 			name: name || `Team ${i + 1}`,
 			score: 0
 		}));
+		
+		// If double jeopardy is enabled, randomly select 5-8 questions as double jeopardy
+		if (doubleJeopardyEnabled) {
+			const allQuestionIds: string[] = [];
+			data.categories.forEach((category: { questions: { id: string }[] }) => {
+				category.questions.forEach((question: { id: string }) => {
+					allQuestionIds.push(question.id);
+				});
+			});
+			
+			// Randomly select 5-8 questions (20-32% of questions)
+			const numDoubleJeopardy = Math.floor(Math.random() * 4) + 5; // 5-8 questions
+			const shuffled = [...allQuestionIds].sort(() => Math.random() - 0.5);
+			doubleJeopardyQuestions = new Set(shuffled.slice(0, numDoubleJeopardy));
+		} else {
+			doubleJeopardyQuestions = new Set();
+		}
+		
 		gamePhase = 'playing';
 	}
 
@@ -113,10 +141,22 @@
 	function handleAnswer(addPoints: boolean) {
 		if (!currentQuestion) return;
 
+		const isDoubleJeopardy = doubleJeopardyQuestions.has(currentQuestion.id);
+		const basePoints = currentQuestion.points;
+		const pointsToAward = isDoubleJeopardy ? basePoints * 2 : basePoints;
+
 		if (addPoints) {
-			players[currentPlayerIndex].score += currentQuestion.points;
+			players[currentPlayerIndex].score += pointsToAward;
 		} else {
-			players[currentPlayerIndex].score -= currentQuestion.points;
+			// For double jeopardy cards, wrong answers always deduct points
+			// For normal cards, deduct if explicitly subtracting
+			if (isDoubleJeopardy) {
+				// Double jeopardy: wrong answer deducts 2x points
+				players[currentPlayerIndex].score -= pointsToAward;
+			} else {
+				// Normal card: deduct if subtracting
+				players[currentPlayerIndex].score -= basePoints;
+			}
 			// Ensure score doesn't go below 0
 			if (players[currentPlayerIndex].score < 0) {
 				players[currentPlayerIndex].score = 0;
@@ -124,13 +164,34 @@
 		}
 		players = [...players];
 
-		// Store last answered question for +/- buttons
+		// Store last answered question for +/- buttons (use actual points awarded)
 		lastAnsweredQuestion = {
-			points: currentQuestion.points
+			points: isDoubleJeopardy ? pointsToAward : basePoints
 		};
 
 		answeredQuestions.add(currentQuestion.id);
 		answeredQuestions = new Set(answeredQuestions);
+
+		// Check if game is over
+		if (answeredQuestions.size === 25) {
+			gamePhase = 'finished';
+		} else {
+			// Move to next player
+			currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+			currentQuestion = null;
+			gamePhase = 'playing';
+		}
+	}
+
+	function skipAnswer() {
+		if (!currentQuestion) return;
+
+		// Mark question as answered (grey it out) but don't award points
+		answeredQuestions.add(currentQuestion.id);
+		answeredQuestions = new Set(answeredQuestions);
+
+		// Don't store last answered question since no points were awarded
+		lastAnsweredQuestion = null;
 
 		// Check if game is over
 		if (answeredQuestions.size === 25) {
@@ -174,6 +235,34 @@
 		currentQuestion = null;
 		lastAnsweredQuestion = null;
 		gamePhase = 'setup';
+	}
+
+	// Team name editing functions
+	function startEditingTeam(index: number) {
+		editingTeamIndex = index;
+		editingTeamName = players[index].name;
+	}
+
+	function saveTeamName() {
+		if (editingTeamIndex !== null && editingTeamName.trim()) {
+			players[editingTeamIndex].name = editingTeamName.trim();
+			players = [...players];
+		}
+		editingTeamIndex = null;
+		editingTeamName = '';
+	}
+
+	function cancelEditingTeam() {
+		editingTeamIndex = null;
+		editingTeamName = '';
+	}
+
+	function handleTeamNameKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			saveTeamName();
+		} else if (event.key === 'Escape') {
+			cancelEditingTeam();
+		}
 	}
 
 	const currentTheme = $derived(themes[theme]);
@@ -240,6 +329,27 @@
 						{/each}
 					</div>
 
+					<!-- Double Jeopardy Toggle -->
+					<div class="rounded-lg border-2 border-primary/30 bg-background p-4">
+						<div class="flex items-center justify-between gap-4">
+							<div class="flex-1">
+								<p class="text-sm font-semibold mb-1 text-foreground">
+									Double Jeopardy Mode
+								</p>
+								<p class="text-xs text-muted-foreground">
+									Random cards worth 2x points. Wrong answers deduct points.
+								</p>
+							</div>
+							<div class="shrink-0 flex items-center gap-2">
+								<span class="text-xs font-medium {doubleJeopardyEnabled ? 'text-muted-foreground' : 'text-red-600 font-bold'}">OFF</span>
+								<div class="double-jeopardy-switch-wrapper">
+									<Switch bind:checked={doubleJeopardyEnabled} aria-label="Enable Double Jeopardy Mode" class="scale-110 double-jeopardy-switch" />
+								</div>
+								<span class="text-xs font-medium {doubleJeopardyEnabled ? 'text-green-600 font-bold' : 'text-muted-foreground'}">ON</span>
+							</div>
+						</div>
+					</div>
+
 					<Button class="w-full" onclick={startGame}>Start Game</Button>
 				</CardContent>
 			</Card>
@@ -296,7 +406,25 @@
 						class="rounded-xl border-2 px-4 py-3 text-center shadow-lg transition-all transform hover:scale-105 {currentTheme.scoreCard}
 							{i === currentPlayerIndex ? 'ring-4 ring-yellow-400 ring-offset-2 scale-110 shadow-2xl' : 'hover:shadow-xl'}"
 					>
-						<p class="text-sm font-bold md:text-base mb-1">{player.name}</p>
+						{#if editingTeamIndex === i}
+							<input
+								type="text"
+								bind:value={editingTeamName}
+								onkeydown={handleTeamNameKeydown}
+								onblur={saveTeamName}
+								class="w-full min-w-[80px] max-w-[120px] rounded border-2 border-white/50 bg-white/20 px-2 py-1 text-center text-sm font-bold text-white placeholder-white/70 focus:border-white focus:outline-none md:text-base"
+								placeholder="Team name"
+								autofocus
+							/>
+						{:else}
+							<button
+								onclick={() => startEditingTeam(i)}
+								class="text-sm font-bold md:text-base mb-1 hover:underline cursor-pointer focus:outline-none focus:underline"
+								title="Click to rename team"
+							>
+								{player.name}
+							</button>
+						{/if}
 						<p class="text-2xl font-extrabold md:text-3xl">{player.score}</p>
 					</div>
 				{/each}
@@ -320,10 +448,11 @@
 					{#each data.categories as category, colIndex}
 						{@const question = category.questions[rowIndex]}
 						{@const isAnswered = answeredQuestions.has(question.id)}
+						{@const isDoubleJeopardy = doubleJeopardyQuestions.has(question.id)}
 						<button
 							onclick={() => selectQuestion(colIndex, rowIndex)}
 							disabled={isAnswered}
-							class="jeopardy-card aspect-square min-h-[48px] border text-lg font-bold md:min-h-[70px] md:text-2xl lg:min-h-[90px] lg:text-3xl
+							class="jeopardy-card aspect-square min-h-[48px] border text-lg font-bold relative md:min-h-[70px] md:text-2xl lg:min-h-[90px] lg:text-3xl
 								{isAnswered ? currentTheme.cellAnswered + ' cursor-default opacity-50' : currentTheme.cell + ' cursor-pointer'}"
 						>
 							{question.points}
@@ -337,7 +466,8 @@
 	<!-- Question Phase -->
 	{#if gamePhase === 'question' && currentQuestion}
 		<div class="container mx-auto flex min-h-[60vh] items-center justify-center px-4">
-			<Card class="w-full max-w-2xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
+			<div in:scale={{ start: 0.3, duration: 400, easing: (t) => t * (2 - t) }}>
+				<Card class="w-full max-w-2xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
 				<CardHeader class="pb-4">
 					<div class="mb-3 flex items-center justify-between">
 						<span class="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">{currentQuestion.categoryName}</span>
@@ -352,15 +482,23 @@
 					<Button class="min-h-[64px] w-full text-lg font-bold shadow-lg hover:shadow-xl transition-all" onclick={showAnswer}>Show Answer</Button>
 				</CardContent>
 			</Card>
+			</div>
 		</div>
 	{/if}
 
 	<!-- Answer Phase -->
 	{#if gamePhase === 'answer' && currentQuestion}
+		{@const isDoubleJeopardy = doubleJeopardyQuestions.has(currentQuestion.id)}
+		{@const displayPoints = isDoubleJeopardy ? currentQuestion.points * 2 : currentQuestion.points}
 		<div class="container mx-auto flex min-h-[60vh] items-center justify-center px-4">
 			<Card class="w-full max-w-2xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
 				<CardHeader class="pb-4">
-					<CardTitle class="text-xl md:text-2xl leading-tight">{currentQuestion.question_text}</CardTitle>
+					<div class="mb-2 flex items-center justify-between">
+						<CardTitle class="text-xl md:text-2xl leading-tight">{currentQuestion.question_text}</CardTitle>
+						{#if isDoubleJeopardy}
+							<span class="rounded-full bg-yellow-400 px-3 py-1 text-sm font-bold text-yellow-900">2x Double Jeopardy</span>
+						{/if}
+					</div>
 				</CardHeader>
 				<CardContent class="space-y-6">
 					<div class="rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border-2 border-primary/30 p-6 md:p-8 shadow-lg">
@@ -382,6 +520,14 @@
 						{players[currentPlayerIndex].name}'s answer
 					</p>
 
+					{#if isDoubleJeopardy}
+						<div class="rounded-lg bg-yellow-50 border-2 border-yellow-300 p-3">
+							<p class="text-sm font-semibold text-yellow-900 text-center">
+								⚠️ Double Jeopardy: Wrong answer will deduct {displayPoints} points!
+							</p>
+						</div>
+					{/if}
+
 					<div class="grid grid-cols-2 gap-4">
 						<Button
 							size="lg"
@@ -390,7 +536,7 @@
 							class="min-h-[64px] text-lg font-bold border-2 hover:bg-red-50 hover:border-red-400 hover:text-red-600 transition-all shadow-md hover:shadow-lg"
 						>
 							Subtract Points<br />
-							<span class="text-sm">(-{currentQuestion.points})</span>
+							<span class="text-sm">(-{displayPoints})</span>
 						</Button>
 						<Button 
 							size="lg" 
@@ -399,7 +545,18 @@
 							class="min-h-[64px] text-lg font-bold border-2 hover:bg-green-50 hover:border-green-400 hover:text-green-600 transition-all shadow-md hover:shadow-lg"
 						>
 							Add Points<br />
-							<span class="text-sm">(+{currentQuestion.points})</span>
+							<span class="text-sm">(+{displayPoints})</span>
+						</Button>
+					</div>
+
+					<div class="pt-2">
+						<Button
+							size="lg"
+							onclick={skipAnswer}
+							variant="ghost"
+							class="w-full min-h-[56px] text-base font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+						>
+							← Back (Skip - No Points)
 						</Button>
 					</div>
 				</CardContent>
@@ -492,5 +649,21 @@
 		100% {
 			transform: scale(1);
 		}
+	}
+
+	/* Make Switch toggle red/green like points buttons with black border */
+	.double-jeopardy-switch-wrapper :global(button[role="switch"]) {
+		border: 3px solid #000000 !important;
+		background-color: #ef4444 !important;
+	}
+
+	.double-jeopardy-switch-wrapper :global(button[role="switch"][aria-checked="true"]) {
+		border: 3px solid #000000 !important;
+		background-color: #22c55e !important;
+	}
+
+	.double-jeopardy-switch-wrapper :global(button[role="switch"] span) {
+		background-color: white !important;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
 	}
 </style>
