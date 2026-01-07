@@ -313,8 +313,11 @@
 	let resultsSaved = $state(false);
 
 	// Save game results to leaderboard when game finishes
-	async function saveGameResults() {
+	function saveGameResults() {
 		if (resultsSaved || players.length === 0) return;
+
+		// Mark as saved immediately to prevent multiple calls
+		resultsSaved = true;
 
 		const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
 		const highestScore = sortedPlayers[0]?.score ?? 0;
@@ -332,18 +335,14 @@
 			totalQuestions: 25
 		});
 
-		// Increment play count via server action (works for all users)
-		try {
-			const formData = new FormData();
-			await fetch(`/games/${data.game.id}/play?/incrementPlays`, {
-				method: 'POST',
-				body: formData
-			});
-		} catch {
+		// Increment play count via server action (fire-and-forget, non-blocking)
+		const formData = new FormData();
+		fetch(`/games/${data.game.id}/play?/incrementPlays`, {
+			method: 'POST',
+			body: formData
+		}).catch(() => {
 			// Silently fail - play count is not critical
-		}
-
-		resultsSaved = true;
+		});
 	}
 
 	// Share game results using Web Share API
