@@ -134,12 +134,15 @@
 	});
 
 	function startGame() {
+		// Reset resultsSaved so each new game can increment play count
+		resultsSaved = false;
+
 		players = playerNames.map((name, i) => ({
 			id: `player-${i}`,
 			name: name || `Player ${i + 1}`,
 			score: 0
 		}));
-		
+
 		// If double jeopardy is enabled, randomly select 5-8 questions as double jeopardy
 		if (doubleJeopardyEnabled) {
 			const allQuestionIds: string[] = [];
@@ -268,6 +271,7 @@
 		currentPlayerIndex = 0;
 		currentQuestion = null;
 		lastAnsweredQuestion = null;
+		resultsSaved = false; // Reset so play count increments for new game
 		gamePhase = 'playing';
 	}
 
