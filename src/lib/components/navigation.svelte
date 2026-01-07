@@ -32,7 +32,7 @@
 		}`;
 </script>
 
-<nav class="sticky top-0 z-40 border-b bg-card/95 backdrop-blur-md supports-[backdrop-filter]:bg-card/80 safe-top">
+<nav class="border-b bg-card safe-top">
 	<div class="container mx-auto flex h-16 items-center justify-between px-4">
 		<!-- Logo -->
 		<a href="/" class="flex items-center gap-2 group no-tap-highlight">

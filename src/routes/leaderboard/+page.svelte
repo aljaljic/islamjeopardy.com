@@ -1,34 +1,16 @@
 <script lang="ts">
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import { leaderboard, familyName } from '$lib/stores/leaderboard.svelte';
-	import { Trophy, Medal, Clock, Trash2, Users, TrendingUp, Calendar, Edit2, Check, X } from 'lucide-svelte';
+	import { leaderboard } from '$lib/stores/leaderboard.svelte';
+	import { Trophy, Medal, Clock, Trash2, TrendingUp, Calendar, X } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 
-	let editingFamilyName = $state(false);
-	let tempFamilyName = $state('');
 	let mounted = $state(false);
 
 	onMount(() => {
 		leaderboard.reload();
-		familyName.reload();
 		mounted = true;
 	});
-
-	function startEditingFamily() {
-		tempFamilyName = familyName.value;
-		editingFamilyName = true;
-	}
-
-	function saveFamilyName() {
-		familyName.set(tempFamilyName.trim());
-		editingFamilyName = false;
-	}
-
-	function cancelEditingFamily() {
-		editingFamilyName = false;
-	}
 
 	function clearAllResults() {
 		if (confirm('Are you sure you want to clear all game history? This cannot be undone.')) {
@@ -63,7 +45,7 @@
 </script>
 
 <svelte:head>
-	<title>Family Leaderboard - Islamic Jeopardy</title>
+	<title>Leaderboard - Islamic Jeopardy</title>
 </svelte:head>
 
 <div class="container mx-auto px-4 py-8">
@@ -72,52 +54,11 @@
 		<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl gradient-accent shadow-lg shadow-accent/25">
 			<Trophy class="h-8 w-8 text-white" />
 		</div>
-		<h1 class="mb-2 text-3xl font-bold sm:text-4xl">Family Leaderboard</h1>
+		<h1 class="mb-2 text-3xl font-bold sm:text-4xl">Leaderboard</h1>
 		<p class="text-lg text-muted-foreground">
-			Track your family's trivia champions
+			Track your trivia champions
 		</p>
 	</div>
-
-	<!-- Family Name Section -->
-	<Card class="mb-8 max-w-md mx-auto border-2 shadow-lg">
-		<CardHeader class="pb-3">
-			<CardTitle class="flex items-center gap-2">
-				<Users class="h-5 w-5 text-primary" />
-				Your Family
-			</CardTitle>
-		</CardHeader>
-		<CardContent>
-			{#if editingFamilyName}
-				<div class="flex gap-2">
-					<Input
-						bind:value={tempFamilyName}
-						placeholder="Enter family name"
-						class="touch-target"
-						onkeydown={(e) => e.key === 'Enter' && saveFamilyName()}
-					/>
-					<Button size="icon" onclick={saveFamilyName} class="touch-target shrink-0">
-						<Check class="h-4 w-4" />
-					</Button>
-					<Button size="icon" variant="ghost" onclick={cancelEditingFamily} class="touch-target shrink-0">
-						<X class="h-4 w-4" />
-					</Button>
-				</div>
-			{:else}
-				<div class="flex items-center justify-between">
-					<span class="text-lg font-semibold">
-						{familyName.value || 'Not set'}
-					</span>
-					<Button variant="ghost" size="sm" onclick={startEditingFamily} class="gap-2 touch-target">
-						<Edit2 class="h-4 w-4" />
-						{familyName.value ? 'Edit' : 'Set Name'}
-					</Button>
-				</div>
-			{/if}
-			<p class="text-xs text-muted-foreground mt-2">
-				Set your family name to track scores together
-			</p>
-		</CardContent>
-	</Card>
 
 	{#if !mounted}
 		<div class="text-center text-muted-foreground py-12">
@@ -131,7 +72,7 @@
 				</div>
 				<CardTitle>No Games Yet</CardTitle>
 				<CardDescription>
-					Play some games to see your family's scores here!
+					Play some games to see your scores here!
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -155,7 +96,7 @@
 						<div class="divide-y">
 							{#each entries.slice(0, 10) as entry, i}
 								{@const rankInfo = getRankIcon(i)}
-								<div class="flex items-center justify-between p-4 {i === 0 ? 'bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20' : ''}">
+								<div class="flex items-center justify-between p-4 {i === 0 ? 'bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-t-lg' : ''}">
 									<div class="flex items-center gap-3">
 										<div class="flex items-center justify-center w-8 h-8 rounded-full {i < 3 ? 'bg-primary/10' : 'bg-muted'}">
 											{#if rankInfo}
@@ -167,9 +108,6 @@
 										</div>
 										<div>
 											<p class="font-semibold">{entry.playerName}</p>
-											{#if entry.familyName}
-												<p class="text-xs text-muted-foreground">{entry.familyName} family</p>
-											{/if}
 										</div>
 									</div>
 									<div class="text-right">
@@ -209,9 +147,6 @@
 										<p class="text-xs text-muted-foreground flex items-center gap-1">
 											<Calendar class="h-3 w-3" />
 											{formatDate(game.playedAt)}
-											{#if game.familyName}
-												· {game.familyName}
-											{/if}
 										</p>
 									</div>
 									<Button
@@ -224,9 +159,9 @@
 									</Button>
 								</div>
 								<div class="flex flex-wrap gap-2">
-									{#each [...game.teams].sort((a, b) => b.score - a.score) as team, i}
+									{#each [...game.teams].sort((a, b) => b.score - a.score) as team}
 										<div class="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium
-											{team.isWinner ? 'bg-gradient-to-r from-yellow-100 to-amber-100 text-amber-800 dark:from-yellow-900/30 dark:to-amber-900/30 dark:text-amber-300' : 'bg-muted text-muted-foreground'}">
+											{team.isWinner ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-muted text-muted-foreground'}">
 											{#if team.isWinner}
 												<Trophy class="h-3 w-3" />
 											{/if}

@@ -7,6 +7,7 @@
 	import { Trophy, Medal, Lightbulb, AlertTriangle, PartyPopper, Share2, Maximize2, Minimize2 } from 'lucide-svelte';
 	import { toast } from '$lib/stores/toast';
 	import { untrack } from 'svelte';
+	import { toBlob } from 'html-to-image';
 	import { scale } from 'svelte/transition';
 	import { leaderboard, familyName } from '$lib/stores/leaderboard.svelte';
 	import { page } from '$app/stores';
@@ -313,6 +314,9 @@
 	// Track if we've saved results for this game
 	let resultsSaved = $state(false);
 
+	// Reference to award card for image capture
+	let awardCardElement: HTMLElement | null = null;
+
 	// Save game results to leaderboard when game finishes
 	async function saveGameResults() {
 		if (resultsSaved || players.length === 0) return;
@@ -354,49 +358,58 @@
 		resultsSaved = true;
 	}
 
-	// Share game results using Web Share API
+	// Share game results as image using Web Share API
 	async function shareResults() {
-		const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
-		const winner = sortedPlayers[0];
+		if (!awardCardElement) {
+			toast.error('Could not capture results');
+			return;
+		}
 
-		// Build results text with medals
-		const resultsText = sortedPlayers
-			.map((p, i) => {
-				const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
-				return `${medal} ${p.name}: ${p.score} pts`;
-			})
-			.join('\n');
+		try {
+			// Convert the award card to a blob
+			const blob = await toBlob(awardCardElement, {
+				quality: 1,
+				pixelRatio: 2, // Higher resolution
+				backgroundColor: '#0f172a' // Match the card background
+			});
 
-		const shareText = `🎉 We played Islamic Jeopardy!\n\n🎮 Game: ${data.game.title}\n\n${resultsText}\n\n🏆 Winner: ${winner.name} with ${winner.score} points!\n\n🕌 Play at islamjeopardy.com`;
+			if (!blob) {
+				toast.error('Could not generate image');
+				return;
+			}
 
-		// Try Web Share API first
-		if (navigator.share) {
-			try {
+			const file = new File([blob], 'islamic-jeopardy-results.png', { type: 'image/png' });
+
+			// Check if Web Share API supports files
+			if (navigator.canShare && navigator.canShare({ files: [file] })) {
 				await navigator.share({
+					files: [file],
 					title: `Islamic Jeopardy - ${data.game.title}`,
-					text: shareText,
-					url: `https://islamjeopardy.com/games/${data.game.id}`
+					text: `We played Islamic Jeopardy! 🎮\n\nPlay at islamjeopardy.com`
 				});
 				toast.success('Shared successfully!');
-			} catch (err) {
-				// User cancelled - don't show error
-				if ((err as Error).name !== 'AbortError') {
-					await copyToClipboard(shareText);
-				}
+			} else {
+				// Fallback: download the image
+				downloadImage(blob);
 			}
-		} else {
-			// Fallback to clipboard
-			await copyToClipboard(shareText);
+		} catch (err) {
+			// User cancelled share - don't show error
+			if ((err as Error).name !== 'AbortError') {
+				toast.error('Could not share results');
+			}
 		}
 	}
 
-	async function copyToClipboard(text: string) {
-		try {
-			await navigator.clipboard.writeText(text);
-			toast.success('Results copied to clipboard!');
-		} catch {
-			toast.error('Could not copy to clipboard');
-		}
+	function downloadImage(blob: Blob) {
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = 'islamic-jeopardy-results.png';
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		URL.revokeObjectURL(url);
+		toast.success('Image downloaded!');
 	}
 
 	// Effect to save results when game finishes
@@ -730,7 +743,7 @@
 	{#if gamePhase === 'finished'}
 		<div class="container mx-auto flex flex-col items-center justify-center px-2 sm:px-4 py-4 sm:py-8 gap-4 sm:gap-6">
 			<!-- Award Card -->
-			<div class="award-card w-full max-w-sm sm:max-w-md rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl">
+			<div bind:this={awardCardElement} class="award-card w-full max-w-sm sm:max-w-md rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl">
 				<!-- Header with logo and site -->
 				<div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-4 sm:px-6 py-3 sm:py-4 text-center">
 					<div class="flex items-center justify-center gap-2 mb-0.5 sm:mb-1">
