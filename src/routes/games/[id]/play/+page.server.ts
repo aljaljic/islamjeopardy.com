@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ params, url, locals: { supabase, safeGetSession } }) => {
 	const { session } = await safeGetSession();
@@ -82,4 +82,24 @@ export const load: PageServerLoad = async ({ params, url, locals: { supabase, sa
 		initialTeamCount,
 		initialDoubleJeopardy
 	};
+};
+
+export const actions: Actions = {
+	incrementPlays: async ({ params, locals: { supabase } }) => {
+		// Increment play count - works for all users (no auth required)
+		const { data: gameData } = await supabase
+			.from('games')
+			.select('total_plays')
+			.eq('id', params.id)
+			.single();
+
+		if (gameData) {
+			await supabase
+				.from('games')
+				.update({ total_plays: (gameData.total_plays || 0) + 1 })
+				.eq('id', params.id);
+		}
+
+		return { success: true };
+	}
 };

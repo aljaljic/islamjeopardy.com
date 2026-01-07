@@ -10,7 +10,6 @@
 	import { toBlob } from 'html-to-image';
 	import { scale } from 'svelte/transition';
 	import { leaderboard, familyName } from '$lib/stores/leaderboard.svelte';
-	import { page } from '$app/stores';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -337,22 +336,15 @@
 			totalQuestions: 25
 		});
 
-		// Increment play count in database
-		const supabase = $page.data.supabase;
-		if (supabase) {
-			// Get current play count and increment
-			const { data: gameData } = await supabase
-				.from('games')
-				.select('total_plays')
-				.eq('id', data.game.id)
-				.single();
-
-			if (gameData) {
-				await supabase
-					.from('games')
-					.update({ total_plays: (gameData.total_plays || 0) + 1 })
-					.eq('id', data.game.id);
-			}
+		// Increment play count via server action (works for all users)
+		try {
+			const formData = new FormData();
+			await fetch(`/games/${data.game.id}/play?/incrementPlays`, {
+				method: 'POST',
+				body: formData
+			});
+		} catch {
+			// Silently fail - play count is not critical
 		}
 
 		resultsSaved = true;
