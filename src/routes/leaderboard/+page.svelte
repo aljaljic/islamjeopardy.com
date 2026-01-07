@@ -2,44 +2,22 @@
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { leaderboard, familyName, type LeaderboardEntry, type GameResult } from '$lib/stores/leaderboard';
+	import { leaderboard, familyName } from '$lib/stores/leaderboard.svelte';
 	import { Trophy, Medal, Clock, Trash2, Users, TrendingUp, Calendar, Edit2, Check, X } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 
-	let entries: LeaderboardEntry[] = $state([]);
-	let recentGames: GameResult[] = $state([]);
-	let currentFamilyName = $state('');
 	let editingFamilyName = $state(false);
 	let tempFamilyName = $state('');
 	let mounted = $state(false);
 
 	onMount(() => {
 		leaderboard.reload();
+		familyName.reload();
 		mounted = true;
-
-		// Subscribe to leaderboard store changes
-		const unsubscribe = leaderboard.subscribe(() => {
-			refreshData();
-		});
-
-		// Subscribe to family name changes
-		const unsubFamily = familyName.subscribe((name) => {
-			currentFamilyName = name;
-		});
-
-		return () => {
-			unsubscribe();
-			unsubFamily();
-		};
 	});
 
-	function refreshData() {
-		entries = leaderboard.getLeaderboard();
-		recentGames = leaderboard.getRecentGames(10);
-	}
-
 	function startEditingFamily() {
-		tempFamilyName = currentFamilyName;
+		tempFamilyName = familyName.value;
 		editingFamilyName = true;
 	}
 
@@ -55,15 +33,11 @@
 	function clearAllResults() {
 		if (confirm('Are you sure you want to clear all game history? This cannot be undone.')) {
 			leaderboard.clearAll();
-			entries = [];
-			recentGames = [];
 		}
 	}
 
 	function deleteGame(id: string) {
 		leaderboard.deleteResult(id);
-		entries = leaderboard.getLeaderboard();
-		recentGames = leaderboard.getRecentGames(10);
 	}
 
 	function formatDate(isoString: string): string {
@@ -82,6 +56,10 @@
 		if (index === 2) return { icon: Medal, class: 'text-amber-600' };
 		return null;
 	}
+
+	// Reactive derived values
+	let entries = $derived(leaderboard.entries);
+	let recentGames = $derived(leaderboard.getRecentGames(10));
 </script>
 
 <svelte:head>
@@ -127,11 +105,11 @@
 			{:else}
 				<div class="flex items-center justify-between">
 					<span class="text-lg font-semibold">
-						{currentFamilyName || 'Not set'}
+						{familyName.value || 'Not set'}
 					</span>
 					<Button variant="ghost" size="sm" onclick={startEditingFamily} class="gap-2 touch-target">
 						<Edit2 class="h-4 w-4" />
-						{currentFamilyName ? 'Edit' : 'Set Name'}
+						{familyName.value ? 'Edit' : 'Set Name'}
 					</Button>
 				</div>
 			{/if}
@@ -246,7 +224,7 @@
 									</Button>
 								</div>
 								<div class="flex flex-wrap gap-2">
-									{#each game.teams.sort((a, b) => b.score - a.score) as team, i}
+									{#each [...game.teams].sort((a, b) => b.score - a.score) as team, i}
 										<div class="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium
 											{team.isWinner ? 'bg-gradient-to-r from-yellow-100 to-amber-100 text-amber-800 dark:from-yellow-900/30 dark:to-amber-900/30 dark:text-amber-300' : 'bg-muted text-muted-foreground'}">
 											{#if team.isWinner}

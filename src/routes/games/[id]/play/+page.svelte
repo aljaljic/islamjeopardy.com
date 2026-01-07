@@ -8,8 +8,7 @@
 	import { toast } from '$lib/stores/toast';
 	import { untrack } from 'svelte';
 	import { scale } from 'svelte/transition';
-	import { leaderboard, familyName } from '$lib/stores/leaderboard';
-	import { get } from 'svelte/store';
+	import { leaderboard, familyName } from '$lib/stores/leaderboard.svelte';
 	import { page } from '$app/stores';
 	import type { PageData } from './$types';
 
@@ -68,16 +67,23 @@
 	let isFullscreen = $state(false);
 
 	function toggleFullscreen() {
-		if (!document.fullscreenElement) {
-			document.documentElement.requestFullscreen().then(() => {
-				isFullscreen = true;
-			}).catch(() => {
-				toast.error('Could not enter fullscreen');
-			});
-		} else {
+		// Check if Fullscreen API is supported
+		if (document.fullscreenElement) {
 			document.exitFullscreen().then(() => {
 				isFullscreen = false;
 			});
+		} else if (document.documentElement.requestFullscreen) {
+			document.documentElement.requestFullscreen().then(() => {
+				isFullscreen = true;
+			}).catch(() => {
+				// Fullscreen not supported (iOS), try scrolling to hide address bar
+				window.scrollTo(0, 1);
+				toast.success('Scroll up to hide address bar for fullscreen');
+			});
+		} else {
+			// iOS fallback - scroll to hide address bar
+			window.scrollTo(0, 1);
+			toast.success('Rotate to landscape for best TV experience');
 		}
 	}
 
@@ -231,8 +237,12 @@
 		answeredQuestions.add(currentQuestion.id);
 		answeredQuestions = new Set(answeredQuestions);
 
-		// Don't store last answered question since no points were awarded
-		lastAnsweredQuestion = null;
+		// Store last answered question so points can still be adjusted manually
+		const isDoubleJeopardy = doubleJeopardyQuestions.has(currentQuestion.id);
+		const pointsValue = isDoubleJeopardy ? currentQuestion.points * 2 : currentQuestion.points;
+		lastAnsweredQuestion = {
+			points: pointsValue
+		};
 
 		// Check if game is over
 		if (answeredQuestions.size === 25) {
@@ -316,13 +326,12 @@
 
 		const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
 		const highestScore = sortedPlayers[0]?.score ?? 0;
-		const currentFamilyName = get(familyName);
 
 		// Save to local leaderboard
 		leaderboard.addResult({
 			gameTitle: data.game.title,
 			gameId: data.game.id,
-			familyName: currentFamilyName,
+			familyName: familyName.value,
 			teams: players.map((p) => ({
 				name: p.name,
 				score: p.score,
@@ -411,11 +420,11 @@
 	<title>{data.game.title} - Play | Islamic Jeopardy</title>
 </svelte:head>
 
-<div class="h-dvh {currentTheme.board} p-2 md:p-3 flex flex-col overflow-hidden">
+<div class="h-dvh {currentTheme.board} p-1 landscape:p-1 md:p-3 flex flex-col overflow-hidden">
 	<!-- Header -->
-	<div class="container mx-auto mb-2 md:mb-4 shrink-0">
-		<div class="flex items-center justify-between gap-2">
-			<h1 class="truncate text-base font-bold md:text-xl {currentTheme.header}">
+	<div class="container mx-auto mb-1 landscape:mb-0.5 md:mb-4 shrink-0">
+		<div class="flex items-center justify-between gap-1 md:gap-2">
+			<h1 class="truncate text-sm landscape:text-xs font-bold md:text-xl {currentTheme.header}">
 				{data.game.title}
 			</h1>
 			{#if gamePhase !== 'setup'}
@@ -429,7 +438,6 @@
 						size="sm"
 						onclick={toggleFullscreen}
 						title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen (TV mode)'}
-						class="hidden sm:flex"
 					>
 						{#if isFullscreen}
 							<Minimize2 class="h-4 w-4" />
@@ -511,24 +519,24 @@
 	<!-- Playing Phase - Game Board -->
 	{#if gamePhase === 'playing'}
 		<div class="flex-1 flex flex-col min-h-0">
-		<!-- Last Card Points Adjustment -->
+		<!-- Last Card Points Adjustment - Hidden in landscape to save space -->
 		{#if lastAnsweredQuestion}
-			<div class="container mx-auto mb-2 px-1 shrink-0">
-				<div class="mx-auto max-w-4xl rounded-lg bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/30 p-2 md:p-3 shadow-sm">
+			<div class="container mx-auto mb-1 px-1 shrink-0 hidden portrait:block md:block">
+				<div class="mx-auto max-w-4xl rounded-lg bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/30 p-1.5 md:p-3 shadow-sm">
 					<div class="flex items-center justify-center gap-2 md:gap-4 flex-wrap">
 						<div class="text-center">
-							<span class="text-xs font-semibold text-muted-foreground">Last: </span>
-							<span class="text-sm md:text-base font-bold text-primary">{lastAnsweredQuestion.points} pts</span>
+							<span class="text-[10px] md:text-xs font-semibold text-muted-foreground">Last: </span>
+							<span class="text-xs md:text-base font-bold text-primary">{lastAnsweredQuestion.points} pts</span>
 						</div>
 						<div class="flex flex-wrap justify-center gap-1 md:gap-2">
 							{#each players as player, i}
 								<div class="flex items-center gap-0.5">
-									<span class="text-[10px] md:text-xs font-medium text-muted-foreground truncate max-w-[50px] md:max-w-[70px]">{player.name}</span>
+									<span class="text-[9px] md:text-xs font-medium text-muted-foreground truncate max-w-[40px] md:max-w-[70px]">{player.name}</span>
 									<Button
 										size="sm"
 										variant="outline"
 										onclick={() => adjustPoints(i, false)}
-										class="h-6 w-6 md:h-7 md:w-7 p-0 text-red-600 hover:bg-red-50 hover:border-red-400 font-bold text-sm"
+										class="h-5 w-5 md:h-7 md:w-7 p-0 text-red-600 hover:bg-red-50 hover:border-red-400 font-bold text-xs md:text-sm"
 										title={`-${lastAnsweredQuestion.points}`}
 									>
 										-
@@ -536,7 +544,7 @@
 									<Button
 										size="sm"
 										onclick={() => adjustPoints(i, true)}
-										class="h-6 w-6 md:h-7 md:w-7 p-0 font-bold text-sm"
+										class="h-5 w-5 md:h-7 md:w-7 p-0 font-bold text-xs md:text-sm"
 										title={`+${lastAnsweredQuestion.points}`}
 									>
 										+
@@ -550,12 +558,12 @@
 		{/if}
 
 		<!-- Score Display -->
-		<div class="container mx-auto mb-2 md:mb-3 shrink-0">
-			<div class="flex flex-wrap justify-center gap-2 md:gap-3 xl:gap-4">
+		<div class="container mx-auto mb-1 landscape:mb-0.5 md:mb-3 shrink-0">
+			<div class="flex flex-wrap justify-center gap-1 landscape:gap-1 md:gap-3 xl:gap-4">
 				{#each players as player, i}
 					<div
-						class="rounded-lg md:rounded-xl border-2 px-2 py-1 md:px-4 md:py-2 xl:px-5 xl:py-3 text-center shadow-lg transition-all transform hover:scale-105 {currentTheme.scoreCard}
-							{i === currentPlayerIndex ? 'ring-2 md:ring-4 ring-yellow-400 ring-offset-1 md:ring-offset-2 scale-105 md:scale-110 shadow-2xl' : 'hover:shadow-xl'}"
+						class="rounded-md landscape:rounded md:rounded-xl border landscape:border md:border-2 px-1.5 py-0.5 landscape:px-1 landscape:py-0.5 md:px-4 md:py-2 xl:px-5 xl:py-3 text-center shadow-md md:shadow-lg transition-all transform hover:scale-105 {currentTheme.scoreCard}
+							{i === currentPlayerIndex ? 'ring-1 landscape:ring-1 md:ring-4 ring-yellow-400 ring-offset-1 scale-105 md:scale-110 shadow-xl md:shadow-2xl' : 'hover:shadow-xl'}"
 					>
 						{#if editingTeamIndex === i}
 							<input
@@ -563,34 +571,34 @@
 								bind:value={editingTeamName}
 								onkeydown={handleTeamNameKeydown}
 								onblur={saveTeamName}
-								class="w-full min-w-[60px] max-w-[100px] md:min-w-[80px] md:max-w-[120px] rounded border-2 border-white/50 bg-white/20 px-1 py-0.5 text-center text-xs font-bold text-white placeholder-white/70 focus:border-white focus:outline-none md:text-sm xl:text-base"
-								placeholder="Player name"
+								class="w-full min-w-[50px] max-w-[80px] landscape:min-w-[40px] landscape:max-w-[60px] md:min-w-[80px] md:max-w-[120px] rounded border border-white/50 bg-white/20 px-1 py-0 text-center text-[10px] landscape:text-[9px] font-bold text-white placeholder-white/70 focus:border-white focus:outline-none md:text-sm xl:text-base"
+								placeholder="Name"
 								autofocus
 							/>
 						{:else}
 							<button
 								onclick={() => startEditingTeam(i)}
-								class="text-xs font-bold md:text-sm xl:text-base 2xl:text-lg hover:underline cursor-pointer focus:outline-none focus:underline"
+								class="text-[10px] landscape:text-[9px] font-bold md:text-sm xl:text-base 2xl:text-lg hover:underline cursor-pointer focus:outline-none focus:underline"
 								title="Click to rename player"
 							>
 								{player.name}
 							</button>
 						{/if}
-						<p class="text-lg font-extrabold md:text-2xl xl:text-3xl 2xl:text-4xl">{player.score}</p>
+						<p class="text-sm landscape:text-xs font-extrabold md:text-2xl xl:text-3xl 2xl:text-4xl">{player.score}</p>
 					</div>
 				{/each}
 			</div>
 		</div>
 
 		<!-- Game Board Grid - Fills remaining viewport -->
-		<div class="flex-1 container mx-auto flex flex-col min-h-0 pb-2">
-			<div class="flex-1 grid grid-cols-5 grid-rows-[auto_repeat(5,1fr)] gap-0.5 md:gap-1 xl:gap-2 min-h-0">
+		<div class="flex-1 container mx-auto flex flex-col min-h-0 pb-1 landscape:pb-0">
+			<div class="flex-1 grid grid-cols-5 grid-rows-[auto_repeat(5,1fr)] gap-0.5 landscape:gap-px md:gap-1 xl:gap-2 min-h-0">
 				<!-- Category Headers -->
 				{#each data.categories as category}
 					<div
-						class="border-b-2 p-1 md:p-2 xl:p-3 text-center text-[8px] font-bold uppercase md:text-[10px] lg:text-xs xl:text-sm 2xl:text-base flex items-center justify-center {currentTheme.category}"
+						class="border-b landscape:border-b md:border-b-2 p-0.5 landscape:p-0.5 md:p-2 xl:p-3 text-center text-[7px] landscape:text-[6px] font-bold uppercase md:text-[10px] lg:text-xs xl:text-sm 2xl:text-base flex items-center justify-center {currentTheme.category}"
 					>
-						<span class="line-clamp-2">{category.name}</span>
+						<span class="line-clamp-1 landscape:line-clamp-1 md:line-clamp-2">{category.name}</span>
 					</div>
 				{/each}
 
@@ -603,7 +611,7 @@
 						<button
 							onclick={() => selectQuestion(colIndex, rowIndex)}
 							disabled={isAnswered}
-							class="jeopardy-card border text-base font-bold relative md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl flex items-center justify-center
+							class="jeopardy-card border landscape:border text-sm landscape:text-xs font-bold relative md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl flex items-center justify-center
 								{isAnswered ? currentTheme.cellAnswered + ' cursor-default opacity-50' : currentTheme.cell + ' cursor-pointer'}"
 						>
 							{question.points}
