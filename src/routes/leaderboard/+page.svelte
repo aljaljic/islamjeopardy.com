@@ -16,20 +16,27 @@
 	onMount(() => {
 		leaderboard.reload();
 		mounted = true;
-	});
 
-	$effect(() => {
-		if (mounted) {
-			entries = leaderboard.getLeaderboard();
-			recentGames = leaderboard.getRecentGames(10);
-		}
-	});
+		// Subscribe to leaderboard store changes
+		const unsubscribe = leaderboard.subscribe(() => {
+			refreshData();
+		});
 
-	$effect(() => {
-		familyName.subscribe((name) => {
+		// Subscribe to family name changes
+		const unsubFamily = familyName.subscribe((name) => {
 			currentFamilyName = name;
 		});
+
+		return () => {
+			unsubscribe();
+			unsubFamily();
+		};
 	});
+
+	function refreshData() {
+		entries = leaderboard.getLeaderboard();
+		recentGames = leaderboard.getRecentGames(10);
+	}
 
 	function startEditingFamily() {
 		tempFamilyName = currentFamilyName;

@@ -411,11 +411,11 @@
 	<title>{data.game.title} - Play | Islamic Jeopardy</title>
 </svelte:head>
 
-<div class="min-h-screen {currentTheme.board} p-2 md:p-4">
+<div class="h-dvh {currentTheme.board} p-2 md:p-3 flex flex-col overflow-hidden">
 	<!-- Header -->
-	<div class="container mx-auto mb-4">
+	<div class="container mx-auto mb-2 md:mb-4 shrink-0">
 		<div class="flex items-center justify-between gap-2">
-			<h1 class="truncate text-lg font-bold md:text-xl {currentTheme.header}">
+			<h1 class="truncate text-base font-bold md:text-xl {currentTheme.header}">
 				{data.game.title}
 			</h1>
 			{#if gamePhase !== 'setup'}
@@ -510,38 +510,37 @@
 
 	<!-- Playing Phase - Game Board -->
 	{#if gamePhase === 'playing'}
+		<div class="flex-1 flex flex-col min-h-0">
 		<!-- Last Card Points Adjustment -->
 		{#if lastAnsweredQuestion}
-			<div class="container mx-auto mb-4 px-2">
-				<div class="mx-auto max-w-4xl rounded-xl bg-gradient-to-r from-primary/10 to-purple-500/10 border-2 border-primary/30 p-3 md:p-4 shadow-md">
-					<div class="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">
-						<div class="flex-1 text-center md:text-left">
-							<p class="text-xs md:text-sm font-semibold text-muted-foreground mb-1">Last Card Value</p>
-							<p class="text-xl md:text-2xl font-bold text-primary">{lastAnsweredQuestion.points} Points</p>
+			<div class="container mx-auto mb-2 px-1 shrink-0">
+				<div class="mx-auto max-w-4xl rounded-lg bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/30 p-2 md:p-3 shadow-sm">
+					<div class="flex items-center justify-center gap-2 md:gap-4 flex-wrap">
+						<div class="text-center">
+							<span class="text-xs font-semibold text-muted-foreground">Last: </span>
+							<span class="text-sm md:text-base font-bold text-primary">{lastAnsweredQuestion.points} pts</span>
 						</div>
-						<div class="flex flex-wrap justify-center gap-2 md:gap-3 w-full md:w-auto">
+						<div class="flex flex-wrap justify-center gap-1 md:gap-2">
 							{#each players as player, i}
-								<div class="flex flex-col items-center gap-1">
-									<p class="text-xs font-medium text-muted-foreground truncate max-w-[80px]">{player.name}</p>
-									<div class="flex gap-1">
-										<Button
-											size="sm"
-											variant="outline"
-											onclick={() => adjustPoints(i, false)}
-											class="h-9 w-9 p-0 text-red-600 hover:bg-red-50 hover:border-red-400 font-bold text-lg shadow-sm hover:shadow-md transition-all"
-											title={`Subtract ${lastAnsweredQuestion.points} points from ${player.name}`}
-										>
-											-
-										</Button>
-										<Button
-											size="sm"
-											onclick={() => adjustPoints(i, true)}
-											class="h-9 w-9 p-0 font-bold text-lg shadow-sm hover:shadow-md transition-all"
-											title={`Add ${lastAnsweredQuestion.points} points to ${player.name}`}
-										>
-											+
-										</Button>
-									</div>
+								<div class="flex items-center gap-0.5">
+									<span class="text-[10px] md:text-xs font-medium text-muted-foreground truncate max-w-[50px] md:max-w-[70px]">{player.name}</span>
+									<Button
+										size="sm"
+										variant="outline"
+										onclick={() => adjustPoints(i, false)}
+										class="h-6 w-6 md:h-7 md:w-7 p-0 text-red-600 hover:bg-red-50 hover:border-red-400 font-bold text-sm"
+										title={`-${lastAnsweredQuestion.points}`}
+									>
+										-
+									</Button>
+									<Button
+										size="sm"
+										onclick={() => adjustPoints(i, true)}
+										class="h-6 w-6 md:h-7 md:w-7 p-0 font-bold text-sm"
+										title={`+${lastAnsweredQuestion.points}`}
+									>
+										+
+									</Button>
 								</div>
 							{/each}
 						</div>
@@ -551,12 +550,12 @@
 		{/if}
 
 		<!-- Score Display -->
-		<div class="container mx-auto mb-4 md:mb-6 xl:mb-8">
-			<div class="flex flex-wrap justify-center gap-3 md:gap-4 xl:gap-6">
+		<div class="container mx-auto mb-2 md:mb-3 shrink-0">
+			<div class="flex flex-wrap justify-center gap-2 md:gap-3 xl:gap-4">
 				{#each players as player, i}
 					<div
-						class="rounded-xl border-2 px-4 py-3 xl:px-6 xl:py-4 text-center shadow-lg transition-all transform hover:scale-105 {currentTheme.scoreCard}
-							{i === currentPlayerIndex ? 'ring-4 ring-yellow-400 ring-offset-2 scale-110 shadow-2xl' : 'hover:shadow-xl'}"
+						class="rounded-lg md:rounded-xl border-2 px-2 py-1 md:px-4 md:py-2 xl:px-5 xl:py-3 text-center shadow-lg transition-all transform hover:scale-105 {currentTheme.scoreCard}
+							{i === currentPlayerIndex ? 'ring-2 md:ring-4 ring-yellow-400 ring-offset-1 md:ring-offset-2 scale-105 md:scale-110 shadow-2xl' : 'hover:shadow-xl'}"
 					>
 						{#if editingTeamIndex === i}
 							<input
@@ -564,32 +563,32 @@
 								bind:value={editingTeamName}
 								onkeydown={handleTeamNameKeydown}
 								onblur={saveTeamName}
-								class="w-full min-w-[80px] max-w-[120px] xl:min-w-[100px] xl:max-w-[160px] rounded border-2 border-white/50 bg-white/20 px-2 py-1 text-center text-sm font-bold text-white placeholder-white/70 focus:border-white focus:outline-none md:text-base xl:text-lg"
+								class="w-full min-w-[60px] max-w-[100px] md:min-w-[80px] md:max-w-[120px] rounded border-2 border-white/50 bg-white/20 px-1 py-0.5 text-center text-xs font-bold text-white placeholder-white/70 focus:border-white focus:outline-none md:text-sm xl:text-base"
 								placeholder="Player name"
 								autofocus
 							/>
 						{:else}
 							<button
 								onclick={() => startEditingTeam(i)}
-								class="text-sm font-bold md:text-base xl:text-xl 2xl:text-2xl mb-1 hover:underline cursor-pointer focus:outline-none focus:underline"
+								class="text-xs font-bold md:text-sm xl:text-base 2xl:text-lg hover:underline cursor-pointer focus:outline-none focus:underline"
 								title="Click to rename player"
 							>
 								{player.name}
 							</button>
 						{/if}
-						<p class="text-2xl font-extrabold md:text-3xl xl:text-4xl 2xl:text-5xl">{player.score}</p>
+						<p class="text-lg font-extrabold md:text-2xl xl:text-3xl 2xl:text-4xl">{player.score}</p>
 					</div>
 				{/each}
 			</div>
 		</div>
 
-		<!-- Game Board Grid -->
-		<div class="container mx-auto overflow-x-auto pb-4 xl:max-w-6xl 2xl:max-w-7xl">
-			<div class="grid min-w-[320px] grid-cols-5 gap-1 md:gap-2 xl:gap-3 2xl:gap-4">
+		<!-- Game Board Grid - Fills remaining viewport -->
+		<div class="flex-1 container mx-auto flex flex-col min-h-0 pb-2">
+			<div class="flex-1 grid grid-cols-5 grid-rows-[auto_repeat(5,1fr)] gap-0.5 md:gap-1 xl:gap-2 min-h-0">
 				<!-- Category Headers -->
 				{#each data.categories as category}
 					<div
-						class="border-b-2 p-1 text-center text-[10px] font-bold uppercase md:p-3 md:text-xs lg:text-sm xl:text-base xl:p-4 2xl:text-lg 2xl:p-5 {currentTheme.category}"
+						class="border-b-2 p-1 md:p-2 xl:p-3 text-center text-[8px] font-bold uppercase md:text-[10px] lg:text-xs xl:text-sm 2xl:text-base flex items-center justify-center {currentTheme.category}"
 					>
 						<span class="line-clamp-2">{category.name}</span>
 					</div>
@@ -604,7 +603,7 @@
 						<button
 							onclick={() => selectQuestion(colIndex, rowIndex)}
 							disabled={isAnswered}
-							class="jeopardy-card aspect-square min-h-[48px] border text-lg font-bold relative md:min-h-[70px] md:text-2xl lg:min-h-[90px] lg:text-3xl xl:min-h-[120px] xl:text-4xl 2xl:min-h-[140px] 2xl:text-5xl
+							class="jeopardy-card border text-base font-bold relative md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl flex items-center justify-center
 								{isAnswered ? currentTheme.cellAnswered + ' cursor-default opacity-50' : currentTheme.cell + ' cursor-pointer'}"
 						>
 							{question.points}
@@ -612,6 +611,7 @@
 					{/each}
 				{/each}
 			</div>
+		</div>
 		</div>
 	{/if}
 
