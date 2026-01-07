@@ -689,32 +689,32 @@
 							size="lg"
 							onclick={() => handleAnswer(false)}
 							variant="outline"
-							class="w-full min-h-[56px] md:min-h-[64px] text-sm md:text-lg font-bold border-2 hover:bg-red-50 hover:border-red-400 hover:text-red-600 transition-all shadow-md hover:shadow-lg"
+							class="w-full min-h-[56px] md:min-h-[64px] xl:min-h-[80px] 2xl:min-h-[96px] text-sm md:text-lg xl:text-xl 2xl:text-2xl font-bold border-2 hover:bg-red-50 hover:border-red-400 hover:text-red-600 transition-all shadow-md hover:shadow-lg"
 						>
 							<div class="flex flex-col items-center justify-center">
 								<span>Subtract Points</span>
-								<span class="text-xs md:text-sm">(-{displayPoints})</span>
+								<span class="text-xs md:text-sm xl:text-base">(-{displayPoints})</span>
 							</div>
 						</Button>
-						<Button 
-							size="lg" 
-							onclick={() => handleAnswer(true)} 
+						<Button
+							size="lg"
+							onclick={() => handleAnswer(true)}
 							variant="outline"
-							class="w-full min-h-[56px] md:min-h-[64px] text-sm md:text-lg font-bold border-2 hover:bg-green-50 hover:border-green-400 hover:text-green-600 transition-all shadow-md hover:shadow-lg"
+							class="w-full min-h-[56px] md:min-h-[64px] xl:min-h-[80px] 2xl:min-h-[96px] text-sm md:text-lg xl:text-xl 2xl:text-2xl font-bold border-2 hover:bg-green-50 hover:border-green-400 hover:text-green-600 transition-all shadow-md hover:shadow-lg"
 						>
 							<div class="flex flex-col items-center justify-center">
 								<span>Add Points</span>
-								<span class="text-xs md:text-sm">(+{displayPoints})</span>
+								<span class="text-xs md:text-sm xl:text-base">(+{displayPoints})</span>
 							</div>
 						</Button>
 					</div>
 
-					<div class="pt-2">
+					<div class="pt-2 xl:pt-4">
 						<Button
 							size="lg"
 							onclick={skipAnswer}
 							variant="ghost"
-							class="w-full min-h-[56px] text-base font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+							class="w-full min-h-[56px] xl:min-h-[64px] text-base xl:text-lg font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
 						>
 							← Back (Skip - No Points)
 						</Button>
