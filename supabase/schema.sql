@@ -71,6 +71,7 @@ create table games (
   total_plays integer default 0,
   average_rating numeric(3, 2),
   rating_count integer default 0,
+  upvotes integer default 0,
 
   constraint title_length check (char_length(title) >= 3 and char_length(title) <= 100)
 );
@@ -83,6 +84,7 @@ create index games_difficulty_idx on games(difficulty);
 create index games_created_at_idx on games(created_at desc);
 create index games_average_rating_idx on games(average_rating desc nulls last);
 create index games_total_plays_idx on games(total_plays desc);
+create index games_upvotes_idx on games(upvotes desc);
 
 -- Game Categories Table
 -- Links games to 5 categories with display order
@@ -413,6 +415,46 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function handle_new_user();
+
+-- RPC Function: Increment game plays (called from client)
+create or replace function increment_game_plays(game_id uuid)
+returns void as $$
+begin
+  update games
+  set total_plays = total_plays + 1
+  where id = game_id;
+end;
+$$ language plpgsql security definer;
+
+-- RPC Function: Upvote a game (called from client, allows anonymous)
+create or replace function upvote_game(game_id uuid)
+returns integer as $$
+declare
+  new_count integer;
+begin
+  update games
+  set upvotes = upvotes + 1
+  where id = game_id
+  returning upvotes into new_count;
+
+  return new_count;
+end;
+$$ language plpgsql security definer;
+
+-- RPC Function: Remove upvote from a game (called from client, allows anonymous)
+create or replace function downvote_game(game_id uuid)
+returns integer as $$
+declare
+  new_count integer;
+begin
+  update games
+  set upvotes = greatest(0, upvotes - 1)
+  where id = game_id
+  returning upvotes into new_count;
+
+  return new_count;
+end;
+$$ language plpgsql security definer;
 
 -- ============================================================================
 -- SEED DATA

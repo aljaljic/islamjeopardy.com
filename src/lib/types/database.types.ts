@@ -71,6 +71,7 @@ export type Database = {
 					total_plays: number;
 					average_rating: number | null;
 					rating_count: number;
+					upvotes: number;
 				};
 				Insert: {
 					id?: string;
@@ -84,6 +85,7 @@ export type Database = {
 					total_plays?: number;
 					average_rating?: number | null;
 					rating_count?: number;
+					upvotes?: number;
 				};
 				Update: {
 					id?: string;
@@ -97,6 +99,7 @@ export type Database = {
 					total_plays?: number;
 					average_rating?: number | null;
 					rating_count?: number;
+					upvotes?: number;
 				};
 			};
 			game_categories: {

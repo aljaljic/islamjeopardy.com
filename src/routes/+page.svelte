@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
-	import { Gamepad2, Star, TrendingUp, Database, AlertCircle, User } from 'lucide-svelte';
+	import { Gamepad2, Star, TrendingUp, Database, AlertCircle, User, ChevronUp } from 'lucide-svelte';
+	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -13,6 +14,74 @@
 		intermediate: 'from-amber-500 to-orange-600',
 		advanced: 'from-purple-500 to-violet-600'
 	};
+
+	// Track upvoted games in localStorage
+	let upvotedGames = $state<Set<string>>(new Set());
+	let gameUpvotes = $state<Record<string, number>>({});
+
+	onMount(() => {
+		// Load upvoted games from localStorage
+		const stored = localStorage.getItem('upvotedGames');
+		if (stored) {
+			upvotedGames = new Set(JSON.parse(stored));
+		}
+		// Initialize upvote counts from server data
+		for (const game of data.games) {
+			gameUpvotes[game.id] = game.upvotes ?? 0;
+		}
+	});
+
+	async function handleUpvote(gameId: string) {
+		const isRemoving = upvotedGames.has(gameId);
+
+		// Optimistically update UI
+		if (isRemoving) {
+			upvotedGames.delete(gameId);
+			gameUpvotes[gameId] = Math.max(0, (gameUpvotes[gameId] ?? 1) - 1);
+		} else {
+			upvotedGames.add(gameId);
+			gameUpvotes[gameId] = (gameUpvotes[gameId] ?? 0) + 1;
+		}
+		upvotedGames = new Set(upvotedGames);
+		gameUpvotes = { ...gameUpvotes };
+
+		// Save to localStorage
+		localStorage.setItem('upvotedGames', JSON.stringify([...upvotedGames]));
+
+		// Call API to update upvote
+		try {
+			const response = await fetch('/api/upvote', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ gameId, remove: isRemoving })
+			});
+			if (!response.ok) {
+				// Revert on error
+				if (isRemoving) {
+					upvotedGames.add(gameId);
+					gameUpvotes[gameId] = (gameUpvotes[gameId] ?? 0) + 1;
+				} else {
+					upvotedGames.delete(gameId);
+					gameUpvotes[gameId] = Math.max(0, (gameUpvotes[gameId] ?? 1) - 1);
+				}
+				upvotedGames = new Set(upvotedGames);
+				gameUpvotes = { ...gameUpvotes };
+				localStorage.setItem('upvotedGames', JSON.stringify([...upvotedGames]));
+			}
+		} catch {
+			// Revert on error
+			if (isRemoving) {
+				upvotedGames.add(gameId);
+				gameUpvotes[gameId] = (gameUpvotes[gameId] ?? 0) + 1;
+			} else {
+				upvotedGames.delete(gameId);
+				gameUpvotes[gameId] = Math.max(0, (gameUpvotes[gameId] ?? 1) - 1);
+			}
+			upvotedGames = new Set(upvotedGames);
+			gameUpvotes = { ...gameUpvotes };
+			localStorage.setItem('upvotedGames', JSON.stringify([...upvotedGames]));
+		}
+	}
 </script>
 
 <div class="container mx-auto px-4 py-8">
@@ -101,45 +170,65 @@
 					style="animation-delay: {i * 80}ms"
 				>
 					<Card class="group h-full border-2 border-transparent hover:border-primary/20 hover-lift overflow-hidden">
-						<CardHeader class="pb-3">
-							<div class="mb-3 flex items-center justify-between">
-								<span class="rounded-full bg-gradient-to-r {difficultyColors[game.difficulty.toLowerCase()] || 'from-gray-500 to-gray-600'} px-3 py-1 text-xs font-semibold text-white shadow-sm">
-									{game.difficulty}
-								</span>
-								{#if game.average_rating}
-									<span class="flex items-center gap-1 text-sm text-muted-foreground">
-										<Star class="h-4 w-4 fill-amber-400 text-amber-400" />
-										<span class="font-medium">{game.average_rating.toFixed(1)}</span>
-										<span class="text-xs">({game.rating_count})</span>
-									</span>
-								{/if}
+						<div class="flex h-full">
+							<!-- Card Content -->
+							<div class="flex-1 flex flex-col">
+								<CardHeader class="pb-3">
+									<div class="mb-3 flex items-center justify-between">
+										<span class="rounded-full bg-gradient-to-r {difficultyColors[game.difficulty.toLowerCase()] || 'from-gray-500 to-gray-600'} px-3 py-1 text-xs font-semibold text-white shadow-sm">
+											{game.difficulty}
+										</span>
+										{#if game.average_rating}
+											<span class="flex items-center gap-1 text-sm text-muted-foreground">
+												<Star class="h-4 w-4 fill-amber-400 text-amber-400" />
+												<span class="font-medium">{game.average_rating.toFixed(1)}</span>
+												<span class="text-xs">({game.rating_count})</span>
+											</span>
+										{/if}
+									</div>
+									<CardTitle class="group-hover:text-primary transition-colors line-clamp-1">
+										{game.title}
+									</CardTitle>
+									<CardDescription class="line-clamp-2">
+										{game.description || 'No description provided'}
+									</CardDescription>
+								</CardHeader>
+								<CardContent class="mt-auto">
+									<div class="flex items-center justify-between">
+										<div class="space-y-1 text-sm text-muted-foreground">
+											<p class="flex items-center gap-1.5">
+												<User class="h-3.5 w-3.5" />
+												<span class="truncate max-w-[120px]">{game.profiles?.display_name || game.profiles?.username || 'Anonymous'}</span>
+											</p>
+											<p class="flex items-center gap-1.5">
+												<TrendingUp class="h-3.5 w-3.5" />
+												<span>{game.total_plays} plays</span>
+											</p>
+										</div>
+										<a href="/games/{game.id}/play">
+											<Button size="sm" class="shadow-md active:scale-95 transition-transform touch-target">
+												Play
+											</Button>
+										</a>
+									</div>
+								</CardContent>
 							</div>
-							<CardTitle class="group-hover:text-primary transition-colors line-clamp-1">
-								{game.title}
-							</CardTitle>
-							<CardDescription class="line-clamp-2">
-								{game.description || 'No description provided'}
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<div class="flex items-center justify-between">
-								<div class="space-y-1 text-sm text-muted-foreground">
-									<p class="flex items-center gap-1.5">
-										<User class="h-3.5 w-3.5" />
-										<span class="truncate max-w-[120px]">{game.profiles?.display_name || game.profiles?.username || 'Anonymous'}</span>
-									</p>
-									<p class="flex items-center gap-1.5">
-										<TrendingUp class="h-3.5 w-3.5" />
-										<span>{game.total_plays} plays</span>
-									</p>
-								</div>
-								<a href="/games/{game.id}/play">
-									<Button size="sm" class="shadow-md active:scale-95 transition-transform touch-target">
-										Play
-									</Button>
-								</a>
+
+							<!-- Upvote Button Column -->
+							<div class="flex flex-col items-center justify-center px-3 border-l border-border/50 bg-muted/30">
+								<button
+									onclick={() => handleUpvote(game.id)}
+									class="flex flex-col items-center gap-0.5 p-1 rounded-lg transition-all cursor-pointer
+										{upvotedGames.has(game.id)
+											? 'text-primary'
+											: 'text-muted-foreground hover:text-primary hover:bg-primary/10'}"
+									title={upvotedGames.has(game.id) ? 'Remove upvote' : 'Upvote this game'}
+								>
+									<ChevronUp class="h-6 w-6 {upvotedGames.has(game.id) ? 'fill-primary/20' : ''}" />
+									<span class="text-sm font-bold">{gameUpvotes[game.id] ?? game.upvotes ?? 0}</span>
+								</button>
 							</div>
-						</CardContent>
+						</div>
 					</Card>
 				</div>
 			{/each}
