@@ -1,0 +1,27 @@
+{
+	"name": "Islamic Jeopardy",
+	"short_name": "IslamJeopardy",
+	"description": "Test your knowledge of Islam through fun and engaging trivia games",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#ffffff",
+	"theme_color": "#10b981",
+	"orientation": "portrait-primary",
+	"categories": ["education", "games"],
+	"icons": [
+		{
+			"src": "/logo.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "/logo.svg",
+			"sizes": "any",
+			"type": "image/svg+xml"
+		}
+	],
+	"screenshots": [],
+	"related_applications": [],
+	"prefer_related_applications": false
+}

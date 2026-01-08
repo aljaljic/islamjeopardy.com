@@ -3,6 +3,9 @@ import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/publi
 import type { LayoutLoad } from './$types';
 import type { Database } from '$lib/types/database.types';
 
+// Prerendering is disabled because we need dynamic Supabase auth
+export const prerender = false;
+
 export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 	depends('supabase:auth');
 

@@ -8,6 +8,10 @@ node_modules
 /.svelte-kit
 /build
 
+# Capacitor (uncomment if you don't want to track native projects)
+# /ios
+# /android
+
 # OS
 .DS_Store
 Thumbs.db

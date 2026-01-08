@@ -1,0 +1,29 @@
+import type { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+	appId: 'com.islamjeopardy.app',
+	appName: 'Islamic Jeopardy',
+	webDir: 'build',
+	server: {
+		androidScheme: 'https',
+		iosScheme: 'https'
+	},
+	ios: {
+		contentInset: 'automatic',
+		preferredContentMode: 'mobile',
+		backgroundColor: '#ffffff'
+	},
+	plugins: {
+		SplashScreen: {
+			launchAutoHide: true,
+			backgroundColor: '#ffffff',
+			showSpinner: false
+		},
+		Keyboard: {
+			resize: 'body',
+			resizeOnFullScreen: true
+		}
+	}
+};
+
+export default config;

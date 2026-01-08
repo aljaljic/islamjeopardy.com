@@ -3,9 +3,15 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import Navigation from '$lib/components/navigation.svelte';
 	import { Toast } from '$lib/components/ui/toast';
+	import { page } from '$app/stores';
+	import { offline } from '$lib/stores/offline.svelte';
+	import { WifiOff } from 'lucide-svelte';
 	import type { LayoutData } from './$types';
 
 	let { children, data }: { children: any; data: LayoutData } = $props();
+
+	// Hide navbar when playing a game
+	let isPlayingGame = $derived($page.url.pathname.match(/^\/games\/[^/]+\/play$/));
 </script>
 
 <svelte:head>
@@ -17,7 +23,17 @@
 </svelte:head>
 
 <div class="flex min-h-screen flex-col bg-background no-tap-highlight scroll-touch">
-	<Navigation session={data.session} />
+	<!-- Offline indicator -->
+	{#if !offline.isOnline}
+		<div class="bg-amber-500 text-white text-center py-1.5 px-4 text-sm font-medium flex items-center justify-center gap-2">
+			<WifiOff class="h-4 w-4" />
+			<span>You're offline. Some features may be limited.</span>
+		</div>
+	{/if}
+
+	{#if !isPlayingGame}
+		<Navigation session={data.session} />
+	{/if}
 	<main class="flex-1 safe-bottom">
 		{@render children()}
 	</main>

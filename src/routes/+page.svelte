@@ -3,6 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Gamepad2, Star, TrendingUp, Database, AlertCircle, User, ChevronUp } from 'lucide-svelte';
 	import { onMount } from 'svelte';
+	import { cacheGame } from '$lib/stores/offline.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -28,6 +29,18 @@
 		// Initialize upvote counts from server data
 		for (const game of data.games) {
 			gameUpvotes[game.id] = game.upvotes ?? 0;
+		}
+
+		// Cache games for offline use
+		for (const game of data.games) {
+			cacheGame({
+				id: game.id,
+				title: game.title,
+				description: game.description,
+				difficulty: game.difficulty,
+				categories: [],
+				cachedAt: Date.now()
+			});
 		}
 	});
 
