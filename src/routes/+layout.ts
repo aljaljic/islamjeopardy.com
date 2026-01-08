@@ -6,6 +6,9 @@ import type { Database } from '$lib/types/database.types';
 // Prerendering is disabled because we need dynamic Supabase auth
 export const prerender = false;
 
+// Disable SSR for static/Capacitor builds
+export const ssr = false;
+
 export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 	depends('supabase:auth');
 
@@ -15,13 +18,34 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 		}
 	});
 
-	const {
-		data: { session }
-	} = await supabase.auth.getSession();
+	// Wrap in try-catch to handle network failures gracefully (important for Capacitor)
+	try {
+		const {
+			data: { session },
+			error
+		} = await supabase.auth.getSession();
 
-	return {
-		session: session ?? data.session,
-		user: session?.user ?? data.user,
-		supabase
-	};
+		if (error) {
+			console.warn('Supabase auth error:', error.message);
+			return {
+				session: data?.session ?? null,
+				user: data?.user ?? null,
+				supabase
+			};
+		}
+
+		return {
+			session: session ?? data?.session ?? null,
+			user: session?.user ?? data?.user ?? null,
+			supabase
+		};
+	} catch (err) {
+		// Network errors or other failures - return default state
+		console.warn('Failed to get session:', err instanceof Error ? err.message : err);
+		return {
+			session: data?.session ?? null,
+			user: data?.user ?? null,
+			supabase
+		};
+	}
 };
