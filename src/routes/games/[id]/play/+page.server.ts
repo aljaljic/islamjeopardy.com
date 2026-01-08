@@ -86,20 +86,16 @@ export const load: PageServerLoad = async ({ params, url, locals: { supabase, sa
 
 export const actions: Actions = {
 	incrementPlays: async ({ params, locals: { supabase } }) => {
-		// Increment play count - works for all users (no auth required)
-		const { data: gameData } = await supabase
-			.from('games')
-			.select('total_plays')
-			.eq('id', params.id)
-			.single();
+		// Increment play count atomically using RPC function
+		// This bypasses RLS issues and prevents race conditions
+		const { error } = await supabase.rpc('increment_game_plays', {
+			game_id: params.id
+		});
 
-		if (gameData) {
-			await supabase
-				.from('games')
-				.update({ total_plays: (gameData.total_plays || 0) + 1 })
-				.eq('id', params.id);
+		if (error) {
+			console.error('Failed to increment plays:', error);
 		}
 
-		return { success: true };
+		return { success: !error };
 	}
 };

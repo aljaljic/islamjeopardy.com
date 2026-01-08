@@ -408,7 +408,7 @@
 	<title>{data.game.title} - Play | Islamic Jeopardy</title>
 </svelte:head>
 
-<div class="h-dvh {currentTheme.board} p-2 md:p-3 flex flex-col overflow-hidden">
+<div class="h-dvh {currentTheme.board} p-2 md:p-3 flex flex-col overflow-y-auto overflow-x-hidden">
 	<!-- Header -->
 	<div class="container mx-auto mb-2 md:mb-4 shrink-0">
 		<div class="flex items-center justify-between gap-2">
@@ -442,8 +442,8 @@
 
 	<!-- Setup Phase -->
 	{#if gamePhase === 'setup'}
-		<div class="container mx-auto flex items-center justify-center py-8 md:py-12">
-			<Card class="w-full max-w-md shadow-2xl border-2 border-primary/20">
+		<div class="container mx-auto flex-1 flex flex-col justify-center py-4 md:py-8">
+			<Card class="w-full max-w-md mx-auto shadow-2xl border-2 border-primary/20">
 				<CardHeader>
 					<CardTitle class="text-2xl">Game Setup</CardTitle>
 				</CardHeader>
@@ -614,7 +614,7 @@
 
 	<!-- Question Phase -->
 	{#if gamePhase === 'question' && currentQuestion}
-		<div class="container mx-auto flex min-h-[60vh] items-center justify-center px-4">
+		<div class="container mx-auto flex flex-1 items-center justify-center px-4 py-4">
 			<div in:scale={{ start: 0.3, duration: 400, easing: (t) => t * (2 - t) }}>
 				<Card class="w-full max-w-2xl xl:max-w-4xl 2xl:max-w-5xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
 				<CardHeader class="pb-4 xl:pb-6">
@@ -639,54 +639,54 @@
 	{#if gamePhase === 'answer' && currentQuestion}
 		{@const isDoubleJeopardy = doubleJeopardyQuestions.has(currentQuestion.id)}
 		{@const displayPoints = isDoubleJeopardy ? currentQuestion.points * 2 : currentQuestion.points}
-		<div class="container mx-auto flex min-h-[60vh] items-center justify-center px-4">
+		<div class="container mx-auto flex flex-1 items-start md:items-center justify-center px-4 py-4">
 			<Card class="w-full max-w-2xl xl:max-w-4xl 2xl:max-w-5xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
-				<CardHeader class="pb-4 xl:pb-6">
-					<div class="mb-2 xl:mb-4 flex items-center justify-between gap-4">
-						<CardTitle class="text-xl md:text-2xl xl:text-3xl 2xl:text-4xl leading-tight">{currentQuestion.question_text}</CardTitle>
+				<CardHeader class="pb-2 md:pb-4 xl:pb-6">
+					<div class="mb-1 md:mb-2 xl:mb-4 flex items-center justify-between gap-2 md:gap-4">
+						<CardTitle class="text-base md:text-2xl xl:text-3xl 2xl:text-4xl leading-tight">{currentQuestion.question_text}</CardTitle>
 						{#if isDoubleJeopardy}
 							<span class="rounded-full bg-yellow-400 px-3 py-1 xl:px-4 xl:py-2 text-sm xl:text-base font-bold text-yellow-900 shrink-0">2x Double Jeopardy</span>
 						{/if}
 					</div>
 				</CardHeader>
-				<CardContent class="space-y-6 xl:space-y-8">
-					<div class="rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border-2 border-primary/30 p-6 md:p-8 xl:p-10 2xl:p-12 shadow-lg">
-						<p class="text-center text-xl md:text-2xl xl:text-3xl 2xl:text-4xl font-bold text-primary">
+				<CardContent class="space-y-3 md:space-y-6 xl:space-y-8">
+					<div class="rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border-2 border-primary/30 p-4 md:p-8 xl:p-10 2xl:p-12 shadow-lg">
+						<p class="text-center text-lg md:text-2xl xl:text-3xl 2xl:text-4xl font-bold text-primary">
 							{currentQuestion.answer_text}
 						</p>
 					</div>
 
 					{#if currentQuestion.explanation}
-						<div class="rounded-lg bg-blue-50 border-2 border-blue-200 p-4 md:p-5 xl:p-6">
-							<p class="text-sm xl:text-base font-semibold text-blue-900 mb-2 flex items-center gap-2">
-								<Lightbulb class="h-4 w-4 xl:h-5 xl:w-5" />
+						<div class="rounded-lg bg-blue-50 border-2 border-blue-200 p-3 md:p-5 xl:p-6">
+							<p class="text-xs md:text-sm xl:text-base font-semibold text-blue-900 mb-1 md:mb-2 flex items-center gap-2">
+								<Lightbulb class="h-3 w-3 md:h-4 md:w-4 xl:h-5 xl:w-5" />
 								Did you know?
 							</p>
-							<p class="text-sm md:text-base xl:text-lg 2xl:text-xl text-blue-800 leading-relaxed">
+							<p class="text-xs md:text-base xl:text-lg 2xl:text-xl text-blue-800 leading-relaxed">
 								{currentQuestion.explanation}
 							</p>
 						</div>
 					{/if}
 
-					<p class="text-center text-lg xl:text-xl 2xl:text-2xl font-semibold text-muted-foreground">
+					<p class="text-center text-base md:text-lg xl:text-xl 2xl:text-2xl font-semibold text-muted-foreground">
 						{players[currentPlayerIndex].name}'s answer
 					</p>
 
 					{#if isDoubleJeopardy}
-						<div class="rounded-lg bg-yellow-50 border-2 border-yellow-300 p-3 xl:p-4">
-							<p class="text-sm xl:text-base font-semibold text-yellow-900 text-center">
-								<AlertTriangle class="inline h-4 w-4 xl:h-5 xl:w-5 mr-1" />
+						<div class="rounded-lg bg-yellow-50 border-2 border-yellow-300 p-2 md:p-3 xl:p-4">
+							<p class="text-xs md:text-sm xl:text-base font-semibold text-yellow-900 text-center">
+								<AlertTriangle class="inline h-3 w-3 md:h-4 md:w-4 xl:h-5 xl:w-5 mr-1" />
 							Double Jeopardy: Wrong answer will deduct {displayPoints} points!
 							</p>
 						</div>
 					{/if}
 
-					<div class="flex flex-col md:grid md:grid-cols-2 gap-3 md:gap-4 xl:gap-6 w-full">
+					<div class="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-4 xl:gap-6 w-full">
 						<Button
 							size="lg"
 							onclick={() => handleAnswer(false)}
 							variant="outline"
-							class="w-full min-h-[56px] md:min-h-[64px] xl:min-h-[80px] 2xl:min-h-[96px] text-sm md:text-lg xl:text-xl 2xl:text-2xl font-bold border-2 hover:bg-red-50 hover:border-red-400 hover:text-red-600 transition-all shadow-md hover:shadow-lg"
+							class="w-full min-h-[48px] md:min-h-[64px] xl:min-h-[80px] 2xl:min-h-[96px] text-sm md:text-lg xl:text-xl 2xl:text-2xl font-bold border-2 hover:bg-red-50 hover:border-red-400 hover:text-red-600 transition-all shadow-md hover:shadow-lg"
 						>
 							<div class="flex flex-col items-center justify-center">
 								<span>Subtract Points</span>
@@ -697,7 +697,7 @@
 							size="lg"
 							onclick={() => handleAnswer(true)}
 							variant="outline"
-							class="w-full min-h-[56px] md:min-h-[64px] xl:min-h-[80px] 2xl:min-h-[96px] text-sm md:text-lg xl:text-xl 2xl:text-2xl font-bold border-2 hover:bg-green-50 hover:border-green-400 hover:text-green-600 transition-all shadow-md hover:shadow-lg"
+							class="w-full min-h-[48px] md:min-h-[64px] xl:min-h-[80px] 2xl:min-h-[96px] text-sm md:text-lg xl:text-xl 2xl:text-2xl font-bold border-2 hover:bg-green-50 hover:border-green-400 hover:text-green-600 transition-all shadow-md hover:shadow-lg"
 						>
 							<div class="flex flex-col items-center justify-center">
 								<span>Add Points</span>
@@ -706,16 +706,14 @@
 						</Button>
 					</div>
 
-					<div class="pt-2 xl:pt-4">
-						<Button
-							size="lg"
-							onclick={skipAnswer}
-							variant="ghost"
-							class="w-full min-h-[56px] xl:min-h-[64px] text-base xl:text-lg font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-						>
-							← Back (Skip - No Points)
-						</Button>
-					</div>
+					<Button
+						size="lg"
+						onclick={skipAnswer}
+						variant="ghost"
+						class="w-full min-h-[44px] md:min-h-[56px] xl:min-h-[64px] text-sm md:text-base xl:text-lg font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+					>
+						← Back (Skip - No Points)
+					</Button>
 				</CardContent>
 			</Card>
 		</div>
