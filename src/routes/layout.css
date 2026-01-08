@@ -6,6 +6,11 @@ body {
 	-webkit-overflow-scrolling: touch;
 	overscroll-behavior-y: none;
 	scroll-behavior: smooth;
+	height: 100%;
+}
+
+body {
+	overflow-y: auto;
 }
 
 @theme {

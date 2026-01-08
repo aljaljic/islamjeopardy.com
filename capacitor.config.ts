@@ -6,7 +6,8 @@ const config: CapacitorConfig = {
 	webDir: 'build',
 	server: {
 		androidScheme: 'https',
-		iosScheme: 'https'
+		iosScheme: 'https',
+		url: 'http://localhost:5173'
 	},
 	ios: {
 		contentInset: 'automatic',

@@ -4,7 +4,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Select } from '$lib/components/ui/select';
 	import { Switch } from '$lib/components/ui/switch';
-	import { Trophy, Medal, Lightbulb, AlertTriangle, PartyPopper, Share2, Maximize2, Minimize2 } from 'lucide-svelte';
+	import { Trophy, Medal, Lightbulb, AlertTriangle, PartyPopper, Share2, Maximize2, Minimize2, Home } from 'lucide-svelte';
 	import { toast } from '$lib/stores/toast';
 	import { untrack } from 'svelte';
 	import { scale } from 'svelte/transition';
@@ -435,6 +435,12 @@
 						{/if}
 					</Button>
 					<Button variant="outline" size="sm" onclick={backToSetup}>Exit</Button>
+					<a href="/">
+						<Button variant="outline" size="sm" class="gap-1">
+							<Home class="h-4 w-4" />
+							<span class="hidden sm:inline">Home</span>
+						</Button>
+					</a>
 				</div>
 			{/if}
 		</div>

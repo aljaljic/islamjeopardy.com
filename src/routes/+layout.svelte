@@ -22,7 +22,7 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 </svelte:head>
 
-<div class="flex min-h-screen flex-col bg-background no-tap-highlight scroll-touch">
+<div class="flex min-h-full flex-col bg-background no-tap-highlight overflow-y-auto">
 	<!-- Offline indicator -->
 	{#if !offline.isOnline}
 		<div class="bg-amber-500 text-white text-center py-1.5 px-4 text-sm font-medium flex items-center justify-center gap-2">
