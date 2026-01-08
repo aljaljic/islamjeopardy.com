@@ -1,5 +1,13 @@
 @import 'tailwindcss';
 
+/* Smooth scrolling on mobile */
+html,
+body {
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-y: none;
+	scroll-behavior: smooth;
+}
+
 @theme {
 	/* Vibrant Islamic-inspired trivia game palette */
 	--color-background: 220 20% 98%;

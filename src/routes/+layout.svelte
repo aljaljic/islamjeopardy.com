@@ -16,9 +16,9 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 </svelte:head>
 
-<div class="flex min-h-screen flex-col bg-background no-tap-highlight">
+<div class="flex min-h-screen flex-col bg-background no-tap-highlight scroll-touch">
 	<Navigation session={data.session} />
-	<main class="flex-1 animate-page-in safe-bottom">
+	<main class="flex-1 safe-bottom">
 		{@render children()}
 	</main>
 
