@@ -4,7 +4,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Select } from '$lib/components/ui/select';
 	import { Switch } from '$lib/components/ui/switch';
-	import { Trophy, Medal, Lightbulb, AlertTriangle, PartyPopper, Share2, Maximize2, Minimize2, Home } from 'lucide-svelte';
+	import { Trophy, Medal, Lightbulb, AlertTriangle, PartyPopper, Share2, Maximize2, Minimize2, Home, ArrowLeft } from 'lucide-svelte';
 	import { toast } from '$lib/stores/toast';
 	import { untrack } from 'svelte';
 	import { scale } from 'svelte/transition';
@@ -451,7 +451,14 @@
 		<div class="container mx-auto flex-1 flex flex-col justify-center py-4 md:py-8">
 			<Card class="w-full max-w-md mx-auto shadow-2xl border-2 border-primary/20">
 				<CardHeader>
-					<CardTitle class="text-2xl">Game Setup</CardTitle>
+					<div class="flex items-center gap-3">
+						<a href="/games/{data.game.id}">
+							<Button variant="ghost" size="icon" class="shrink-0">
+								<ArrowLeft class="h-5 w-5" />
+							</Button>
+						</a>
+						<CardTitle class="text-2xl">Game Setup</CardTitle>
+					</div>
 				</CardHeader>
 				<CardContent class="space-y-6">
 					<!-- Theme Selection -->

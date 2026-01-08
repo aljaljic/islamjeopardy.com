@@ -11,6 +11,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Select } from '$lib/components/ui/select';
 	import { Switch } from '$lib/components/ui/switch';
+	import { Check } from 'lucide-svelte';
 	import type { PageData, ActionData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -236,12 +237,17 @@
 							type="button"
 							onclick={() => toggleCategory(category)}
 							disabled={!isSelected && selectedCategories.length >= 5}
-							class="rounded-lg border-2 p-4 text-left transition-all
-								{isSelected ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}
+							class="relative rounded-lg border-2 p-4 text-left transition-all
+								{isSelected ? 'border-primary bg-primary/10 ring-2 ring-primary/30' : 'border-border hover:border-primary/50'}
 								{!isSelected && selectedCategories.length >= 5
 								? 'cursor-not-allowed opacity-50'
 								: ''}"
 						>
+							{#if isSelected}
+								<div class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow-md">
+									<Check class="h-4 w-4" />
+								</div>
+							{/if}
 							<p class="font-medium">{category.name}</p>
 							{#if category.description}
 								<p class="text-xs text-muted-foreground">{category.description}</p>
