@@ -4,7 +4,7 @@ import PackageDescription
 // DO NOT MODIFY THIS FILE - managed by Capacitor CLI commands
 let package = Package(
     name: "CapApp-SPM",
-    platforms: [.iOS(.v18)],
+    platforms: [.iOS(.v17)],
     products: [
         .library(
             name: "CapApp-SPM",
@@ -12,7 +12,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "8.0.0"),
-        .package(name: "CapacitorNetwork", path: "../../../node_modules/.pnpm/@capacitor+network@8.0.0_@capacitor+core@8.0.0/node_modules/@capacitor/network")
+        .package(name: "CapacitorNetwork", path: "../../../node_modules/@capacitor/network")
     ],
     targets: [
         .target(
