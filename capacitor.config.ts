@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
 	server: {
 		androidScheme: 'https',
 		iosScheme: 'https',
-		url: 'http://localhost:5173'
+		url: 'https://islamjeopardy.com'
 	},
 	ios: {
 		contentInset: 'automatic',

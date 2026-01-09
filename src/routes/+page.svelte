@@ -219,7 +219,7 @@
 											</p>
 										</div>
 										<a href="/games/{game.id}/play">
-											<Button size="sm" class="shadow-md active:scale-95 transition-transform touch-target">
+											<Button size="sm" class="gradient-primary border-0 text-white shadow-md active:scale-95 transition-transform touch-target">
 												Play
 											</Button>
 										</a>
