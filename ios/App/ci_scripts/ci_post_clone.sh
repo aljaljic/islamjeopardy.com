@@ -29,13 +29,18 @@ pnpm run build:ios
 echo "Syncing Capacitor..."
 npx cap sync ios
 
-# Fix Package.swift paths - replace pnpm internal paths with resolved symlinks
-echo "Fixing Package.swift paths for Xcode Cloud..."
+# Fix Package.swift for Xcode Cloud compatibility
+echo "Fixing Package.swift for Xcode Cloud..."
 PACKAGE_SWIFT="$CI_PRIMARY_REPOSITORY_PATH/ios/App/CapApp-SPM/Package.swift"
 if [ -f "$PACKAGE_SWIFT" ]; then
     # Replace pnpm's .pnpm paths with the standard node_modules paths
     sed -i '' 's|node_modules/.pnpm/@capacitor+network@[^/]*/node_modules/@capacitor/network|node_modules/@capacitor/network|g' "$PACKAGE_SWIFT"
-    echo "Package.swift paths updated"
+
+    # Fix iOS version - .v18 requires PackageDescription 6.0, use .v17 instead
+    # The actual deployment target is controlled by Xcode project settings
+    sed -i '' 's|\.iOS(\.v18)|.iOS(.v17)|g' "$PACKAGE_SWIFT"
+
+    echo "Package.swift updated:"
     cat "$PACKAGE_SWIFT"
 fi
 
