@@ -19,7 +19,7 @@
 	type GamePhase = 'setup' | 'playing' | 'question' | 'answer' | 'finished';
 
 	// Game state
-	let theme = $state<GameTheme>('modern');
+	let theme = $state<GameTheme>('islamic');
 	let gamePhase = $state<GamePhase>('setup');
 	let players = $state<Player[]>([]);
 	let currentPlayerIndex = $state(0);
