@@ -75,7 +75,7 @@
 
 				<!-- Maker -->
 				<div class="lg:w-1/3 md:w-1/2 w-full px-4">
-					<div class="font-semibold tracking-widest text-sm md:text-left mb-3 text-foreground">BY MAKER OF ISLAMJEOPARDY</div>
+					<div class="font-semibold tracking-widest text-sm md:text-left mb-3 text-foreground">MORE FROM CODEDEEN</div>
 					<div class="flex flex-col justify-center items-center md:items-start gap-2 mb-10 text-base">
 						<a href="https://codedeen.com" target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-foreground/80 text-muted-foreground text-md hover:text-primary">CodeDeen</a>
 						<a href="https://svelteship.com" target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-foreground/80 text-muted-foreground text-md hover:text-primary">SvelteShip</a>
