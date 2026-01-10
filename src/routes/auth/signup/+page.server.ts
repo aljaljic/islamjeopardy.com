@@ -16,23 +16,26 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const email = formData.get('email') as string;
 		const password = formData.get('password') as string;
-		const username = formData.get('username') as string;
+		const usernameRaw = formData.get('username') as string;
 		const displayName = formData.get('display_name') as string;
 
-		if (!email || !password || !username) {
+		if (!email || !password || !usernameRaw) {
 			return fail(400, {
 				error: 'Email, username, and password are required',
 				email,
-				username,
+				username: usernameRaw,
 				displayName
 			});
 		}
+
+		// Normalize username: lowercase and trim
+		const username = usernameRaw.toLowerCase().trim();
 
 		if (username.length < 3 || username.length > 20) {
 			return fail(400, {
 				error: 'Username must be between 3 and 20 characters',
 				email,
-				username,
+				username: usernameRaw,
 				displayName
 			});
 		}
@@ -41,7 +44,23 @@ export const actions: Actions = {
 			return fail(400, {
 				error: 'Password must be at least 6 characters',
 				email,
-				username,
+				username: usernameRaw,
+				displayName
+			});
+		}
+
+		// Check if username already exists
+		const { data: existingProfile } = await supabase
+			.from('profiles')
+			.select('id')
+			.eq('username', username)
+			.single();
+
+		if (existingProfile) {
+			return fail(400, {
+				error: 'This username is already taken. Please choose another one.',
+				email,
+				username: usernameRaw,
 				displayName
 			});
 		}
@@ -62,7 +81,7 @@ export const actions: Actions = {
 			return fail(400, {
 				error: error.message,
 				email,
-				username,
+				username: usernameRaw,
 				displayName
 			});
 		}

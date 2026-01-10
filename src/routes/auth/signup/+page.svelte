@@ -3,6 +3,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Mail, Lock, User, UserPlus, AlertCircle, CheckCircle } from 'lucide-svelte';
+	import { enhance } from '$app/forms';
 	import type { ActionData } from './$types';
 
 	let { form }: { form: ActionData } = $props();
@@ -19,15 +20,24 @@
 		</CardHeader>
 		<CardContent>
 			{#if form?.success}
-				<div class="flex items-start gap-3 rounded-xl bg-emerald-500/10 p-4 text-sm text-emerald-600 dark:text-emerald-400">
+				<div class="flex items-start gap-3 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/20 p-4 text-sm text-emerald-600 dark:text-emerald-400">
 					<CheckCircle class="h-5 w-5 shrink-0 mt-0.5" />
 					<div>
 						<p class="font-semibold">Account created successfully!</p>
-						<p class="mt-1 opacity-90">{form.message}</p>
+						<p class="mt-1 opacity-90">{form.message || 'Check your email to confirm your account'}</p>
 					</div>
 				</div>
 			{:else}
-				<form method="POST" class="space-y-5">
+				<form
+					method="POST"
+					class="space-y-5"
+					use:enhance={() => {
+						return async ({ result, update }) => {
+							await update();
+							// Form state is automatically preserved by SvelteKit
+						};
+					}}
+				>
 					{#if form?.error}
 						<div class="flex items-start gap-3 rounded-xl bg-destructive/10 p-4 text-sm text-destructive">
 							<AlertCircle class="h-5 w-5 shrink-0 mt-0.5" />
