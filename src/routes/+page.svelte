@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
+	import Footer from '$lib/components/footer.svelte';
 	import { Gamepad2, Star, TrendingUp, Database, AlertCircle, User, ChevronUp } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { cacheGame } from '$lib/stores/offline.svelte';
@@ -248,3 +249,5 @@
 		</div>
 	{/if}
 </div>
+
+<Footer />
