@@ -3,9 +3,20 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Mail, Lock, LogIn, AlertCircle } from 'lucide-svelte';
+	import { enhance } from '$app/forms';
+	import { toast } from '$lib/stores/toast';
 	import type { ActionData } from './$types';
 
 	let { form }: { form: ActionData } = $props();
+	let lastError = $state<string | null>(null);
+
+	// Show toast notification when form error changes
+	$effect(() => {
+		if (form?.error && form.error !== lastError) {
+			toast.error(form.error);
+			lastError = form.error;
+		}
+	});
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-background p-4">
@@ -18,7 +29,16 @@
 			<CardDescription>Enter your credentials to access your account</CardDescription>
 		</CardHeader>
 		<CardContent>
-			<form method="POST" class="space-y-5">
+			<form 
+				method="POST" 
+				class="space-y-5"
+				use:enhance={() => {
+					return async ({ result, update }) => {
+						await update();
+						// Toast notifications are handled by $effect when form state updates
+					};
+				}}
+			>
 				{#if form?.error}
 					<div class="flex items-start gap-3 rounded-xl bg-destructive/10 p-4 text-sm text-destructive">
 						<AlertCircle class="h-5 w-5 shrink-0 mt-0.5" />
