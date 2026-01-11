@@ -83,8 +83,7 @@
 						<div class="mb-4 text-sm text-muted-foreground">
 							<p>Created {formatDate(game.created_at)}</p>
 							<p>
-								{game.total_plays} play{game.total_plays !== 1 ? 's' : ''} ·
-								{game.rating_count} rating{game.rating_count !== 1 ? 's' : ''}
+								{game.total_plays} play{game.total_plays !== 1 ? 's' : ''}
 							</p>
 						</div>
 

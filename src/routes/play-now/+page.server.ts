@@ -39,8 +39,6 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
 			description,
 			difficulty,
 			total_plays,
-			average_rating,
-			rating_count,
 			profiles:creator_id (
 				username,
 				display_name

@@ -4,7 +4,7 @@
 	import { Select } from '$lib/components/ui/select';
 	import { Switch } from '$lib/components/ui/switch';
 	import { goto } from '$app/navigation';
-	import { Gamepad2, Star, Users, TrendingUp, User, Database, AlertCircle, ArrowRight } from 'lucide-svelte';
+	import { Gamepad2, Users, TrendingUp, User, Database, AlertCircle, ArrowRight } from 'lucide-svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -101,9 +101,6 @@
 							{#each data.games as game}
 								<option value={game.id}>
 									{game.title} ({game.difficulty})
-									{#if game.average_rating}
-										- {game.average_rating.toFixed(1)}★
-									{/if}
 								</option>
 							{/each}
 						</Select>
@@ -178,13 +175,6 @@
 								<span class="rounded-full bg-gradient-to-r {difficultyColors[selectedGame.difficulty.toLowerCase()] || 'from-gray-500 to-gray-600'} px-3 py-1 font-semibold text-white shadow-sm">
 									{selectedGame.difficulty}
 								</span>
-								{#if selectedGame.average_rating}
-									<span class="flex items-center gap-1 text-muted-foreground">
-										<Star class="h-4 w-4 fill-amber-400 text-amber-400" />
-										<span class="font-medium">{selectedGame.average_rating.toFixed(1)}</span>
-										<span class="text-xs">({selectedGame.rating_count} ratings)</span>
-									</span>
-								{/if}
 								<span class="flex items-center gap-1 text-muted-foreground">
 									<TrendingUp class="h-4 w-4" />
 									{selectedGame.total_plays} plays

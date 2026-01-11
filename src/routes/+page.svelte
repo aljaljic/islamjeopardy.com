@@ -2,7 +2,7 @@
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import Footer from '$lib/components/footer.svelte';
-	import { Gamepad2, Star, TrendingUp, Database, AlertCircle, User, ChevronUp } from 'lucide-svelte';
+	import { Gamepad2, TrendingUp, Database, AlertCircle, User, ChevronUp } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { cacheGame } from '$lib/stores/offline.svelte';
 	import type { PageData } from './$types';
@@ -192,13 +192,6 @@
 										<span class="rounded-full bg-gradient-to-r {difficultyColors[game.difficulty.toLowerCase()] || 'from-gray-500 to-gray-600'} px-3 py-1 text-xs font-semibold text-white shadow-sm">
 											{game.difficulty}
 										</span>
-										{#if game.average_rating}
-											<span class="flex items-center gap-1 text-sm text-muted-foreground">
-												<Star class="h-4 w-4 fill-amber-400 text-amber-400" />
-												<span class="font-medium">{game.average_rating.toFixed(1)}</span>
-												<span class="text-xs">({game.rating_count})</span>
-											</span>
-										{/if}
 									</div>
 									<CardTitle class="group-hover:text-primary transition-colors line-clamp-1">
 										{game.title}
