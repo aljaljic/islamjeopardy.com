@@ -7,9 +7,21 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
+	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
+	
+	// Local state for user rating to update UI immediately
+	let userRating = $state(data.userRating?.rating ?? null);
+	let isFavorited = $state(data.isFavorited);
+	
+	// Update local state when data changes
+	$effect(() => {
+		userRating = data.userRating?.rating ?? null;
+		isFavorited = data.isFavorited;
+	});
 
 	const difficultyColors: Record<string, string> = {
 		kids: 'bg-green-500/10 text-green-600',
@@ -126,27 +138,58 @@
 					</CardHeader>
 					<CardContent class="space-y-4">
 						<!-- Favorite Button -->
-						<form method="POST" action="?/toggleFavorite">
+						<form 
+							method="POST" 
+							action="?/toggleFavorite"
+							use:enhance={() => {
+								return async ({ result, update }) => {
+									if (result.type === 'success') {
+										// Toggle local state immediately
+										isFavorited = !isFavorited;
+									}
+									await update();
+									await invalidateAll();
+								};
+							}}
+						>
 							<Button variant="outline" class="w-full" type="submit">
-								{data.isFavorited ? 'Favorited' : 'Add to Favorites'}
+								{isFavorited ? 'Favorited' : 'Add to Favorites'}
 							</Button>
 						</form>
 
 						<!-- Rating -->
 						<div>
 							<p class="mb-2 text-sm font-medium">Rate this game</p>
-							<form method="POST" action="?/rate" class="flex gap-1">
+							<form 
+								method="POST" 
+								action="?/rate" 
+								class="flex gap-1"
+								use:enhance={({ formData }) => {
+									// Get the rating value from the form submission
+									const rating = parseInt(formData.get('rating') as string);
+									if (!isNaN(rating)) {
+										userRating = rating;
+									}
+									
+									return async ({ result, update }) => {
+										await update();
+										// Invalidate all data to refresh the page data (average rating, count, etc.)
+										await invalidateAll();
+									};
+								}}
+							>
 								{#each [1, 2, 3, 4, 5] as star}
 									<button
 										type="submit"
 										name="rating"
 										value={star}
 										class="text-2xl transition-transform hover:scale-110
-											{data.userRating?.rating && data.userRating.rating >= star
+											{userRating && userRating >= star
 											? 'text-yellow-500'
 											: 'text-muted'}"
+										aria-label="Rate {star} star{star !== 1 ? 's' : ''}"
 									>
-										*
+										★
 									</button>
 								{/each}
 							</form>
