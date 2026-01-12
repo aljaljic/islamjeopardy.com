@@ -1,5 +1,16 @@
 <script lang="ts">
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { Button } from '$lib/components/ui/button';
+	import { ArrowLeft } from 'lucide-svelte';
+	import { goto } from '$app/navigation';
+
+	function goBack() {
+		if (typeof window !== 'undefined' && window.history.length > 1) {
+			window.history.back();
+		} else {
+			goto('/');
+		}
+	}
 </script>
 
 <svelte:head>
@@ -7,6 +18,14 @@
 </svelte:head>
 
 <div class="container mx-auto px-4 py-8 max-w-4xl">
+	<Button
+		variant="ghost"
+		onclick={goBack}
+		class="mb-4 gap-2 touch-target"
+	>
+		<ArrowLeft class="h-4 w-4" />
+		<span>Back</span>
+	</Button>
 	<Card class="border-2 shadow-lg">
 		<CardHeader>
 			<CardTitle class="text-3xl">Terms of Service</CardTitle>
