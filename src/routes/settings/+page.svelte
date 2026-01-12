@@ -107,7 +107,6 @@
 												id="confirmation"
 												name="confirmation"
 												type="text"
-												placeholder="DELETE"
 												bind:value={confirmationText}
 												required
 												class="touch-target"
