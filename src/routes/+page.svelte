@@ -3,6 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import Footer from '$lib/components/footer.svelte';
 	import { Gamepad2, TrendingUp, Database, AlertCircle, User, ChevronUp } from 'lucide-svelte';
+	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { cacheGame } from '$lib/stores/offline.svelte';
 	import { isIOS } from '$lib/utils/device';
