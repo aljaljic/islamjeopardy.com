@@ -115,9 +115,9 @@
 						<CardTitle class="text-lg">Actions</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<a href="/games/{data.game.id}/edit">
-							<Button variant="outline" class="w-full">Edit Game</Button>
-						</a>
+								<a href="/games/{data.game.id}/edit">
+									<Button variant="outline" class="w-full">Edit Game</Button>
+								</a>
 					</CardContent>
 				</Card>
 			{:else if !data.session}

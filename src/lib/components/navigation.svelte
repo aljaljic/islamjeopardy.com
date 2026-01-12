@@ -12,7 +12,8 @@
 		UserPlus,
 		LogOut,
 		Trophy,
-		MessageSquare
+		MessageSquare,
+		Settings
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 
@@ -75,7 +76,7 @@
 				<span>Feedback</span>
 			</a>
 
-			{#if session}
+			{#if session?.user}
 				<a href="/games/new" class={navLinkClass('/games/new')}>
 					<PlusCircle class="h-4 w-4" />
 					<span>Create</span>
@@ -83,6 +84,10 @@
 				<a href="/games/my-games" class={navLinkClass('/games/my-games')}>
 					<FolderOpen class="h-4 w-4" />
 					<span>My Games</span>
+				</a>
+				<a href="/settings" class={navLinkClass('/settings')}>
+					<Settings class="h-4 w-4" />
+					<span>Settings</span>
 				</a>
 				<form method="POST" action="/auth/logout" class="ml-2">
 					<Button variant="ghost" type="submit" class="gap-2 touch-target">
@@ -139,7 +144,7 @@
 			<span>Feedback</span>
 		</a>
 
-		{#if session}
+		{#if session?.user}
 			<hr class="my-3 border-border" />
 			<a href="/games/new" class={navLinkClass('/games/new')} onclick={() => (mobileMenuOpen = false)}>
 				<PlusCircle class="h-5 w-5" />
@@ -148,6 +153,10 @@
 			<a href="/games/my-games" class={navLinkClass('/games/my-games')} onclick={() => (mobileMenuOpen = false)}>
 				<FolderOpen class="h-5 w-5" />
 				<span>My Games</span>
+			</a>
+			<a href="/settings" class={navLinkClass('/settings')} onclick={() => (mobileMenuOpen = false)}>
+				<Settings class="h-5 w-5" />
+				<span>Settings</span>
 			</a>
 			<hr class="my-3 border-border" />
 			<form method="POST" action="/auth/logout">

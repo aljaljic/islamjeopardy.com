@@ -34,7 +34,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		.sort((a: { display_order: number }, b: { display_order: number }) => a.display_order - b.display_order)
 		.map((gc: { categories: { name: string } }) => gc.categories.name);
 
-		return {
+	return {
 		game: {
 			id: game.id,
 			title: game.title,
