@@ -37,16 +37,16 @@
 		{#each tabs as tab}
 			<a
 				href={tab.href}
-				class="flex flex-col items-center justify-center min-w-[64px] py-1 px-3 rounded-lg transition-all duration-150 no-tap-highlight active:scale-95 {isActive(tab.href)
+				class="flex flex-col items-center justify-center w-[72px] py-1 rounded-lg no-tap-highlight active:opacity-70 {isActive(tab.href)
 					? 'text-primary'
 					: 'text-gray-500 dark:text-gray-400'}"
 			>
 				<svelte:component
 					this={tab.icon}
-					class="h-6 w-6 transition-transform {isActive(tab.href) ? 'scale-110' : ''}"
+					class="h-6 w-6"
 					strokeWidth={isActive(tab.href) ? 2.5 : 1.5}
 				/>
-				<span class="text-[10px] font-medium mt-1 {isActive(tab.href) ? 'font-semibold' : ''}">
+				<span class="text-[10px] mt-1 {isActive(tab.href) ? 'font-semibold' : 'font-medium'}">
 					{tab.label}
 				</span>
 			</a>
