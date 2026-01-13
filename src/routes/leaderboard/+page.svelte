@@ -5,11 +5,9 @@
 	import { Trophy, Medal, Clock, Trash2, TrendingUp, Calendar, X } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 
-	let mounted = $state(false);
-
 	onMount(() => {
+		// Refresh data from localStorage on mount
 		leaderboard.reload();
-		mounted = true;
 	});
 
 	function clearAllResults() {
@@ -60,11 +58,7 @@
 		</p>
 	</div>
 
-	{#if !mounted}
-		<div class="text-center text-muted-foreground py-12">
-			Loading...
-		</div>
-	{:else if entries.length === 0}
+	{#if entries.length === 0}
 		<Card class="max-w-md mx-auto border-2 shadow-lg text-center">
 			<CardHeader>
 				<div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
