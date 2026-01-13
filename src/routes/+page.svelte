@@ -6,7 +6,7 @@
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { cacheGame } from '$lib/stores/offline.svelte';
-	import { isIOS } from '$lib/utils/device';
+	import { isIOS, isCapacitorApp } from '$lib/utils/device';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -14,8 +14,9 @@
 	// Hide footer on iOS devices (reactive, no flash)
 	let showFooter = $derived(browser ? !isIOS() : true);
 	
-	// Show App Store notice only to non-iOS users
-	let showAppStoreNotice = $derived(browser ? !isIOS() : true);
+	// Show App Store notice to everyone EXCEPT users in the native Capacitor app
+	// This means iOS Safari users WILL see it (so they can download the app)
+	let showAppStoreNotice = $derived(browser ? !isCapacitorApp() : true);
 
 	// Difficulty badge colors
 	const difficultyColors: Record<string, string> = {
