@@ -1,0 +1,2 @@
+{"location":"layout.svelte:effect","message":"Layout state","data":{"pathname":"/","showIOSTabBar":false,"showTopNav":true,"isCapacitor":false,"browser":true},"timestamp":1768338753632,"sessionId":"debug-session","hypothesisId":"A,D"}
+{"location":"layout.svelte:effect","message":"Layout state","data":{"pathname":"/","showIOSTabBar":false,"showTopNav":true,"isCapacitor":false,"browser":true},"timestamp":1768338856918,"sessionId":"debug-session","hypothesisId":"A,D"}
