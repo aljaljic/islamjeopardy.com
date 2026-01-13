@@ -45,7 +45,7 @@
 		<Navigation session={data.session} />
 	{/if}
 
-	<main class="flex-1 safe-bottom" class:pb-20={showIOSTabBar}>
+	<main class="flex-1" class:pb-20={showIOSTabBar} class:safe-bottom={!showIOSTabBar}>
 		{@render children()}
 	</main>
 

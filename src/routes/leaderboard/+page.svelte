@@ -40,7 +40,7 @@
 	<title>Leaderboard - Islamic Jeopardy</title>
 </svelte:head>
 
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-4 py-8 min-h-[calc(100vh-80px)]">
 	<!-- Header -->
 	<div class="mb-8 text-center">
 		<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl gradient-accent shadow-lg shadow-accent/25">
