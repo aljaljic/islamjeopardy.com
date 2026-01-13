@@ -32,14 +32,14 @@
 	);
 </script>
 
-<nav class="fixed bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-gray-200/60 dark:border-gray-700/60 pb-[env(safe-area-inset-bottom)] transform-gpu">
+<nav class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 pb-[env(safe-area-inset-bottom)] transform-gpu">
 	<div class="flex items-stretch justify-around px-2">
 		{#each tabs as tab}
 			<a
 				href={tab.href}
 				class="flex flex-col items-center justify-center flex-1 h-[50px] no-tap-highlight active:opacity-70 {isActive(tab.href)
 					? 'text-primary'
-					: 'text-gray-500 dark:text-gray-400'}"
+					: 'text-gray-500'}"
 			>
 				<svelte:component
 					this={tab.icon}
