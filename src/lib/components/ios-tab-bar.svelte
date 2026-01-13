@@ -44,7 +44,7 @@
 				<svelte:component
 					this={tab.icon}
 					class="h-6 w-6"
-					strokeWidth={isActive(tab.href) ? 2.5 : 1.5}
+					strokeWidth={2}
 				/>
 				<span class="text-[10px] mt-1 {isActive(tab.href) ? 'font-semibold' : 'font-medium'}">
 					{tab.label}
