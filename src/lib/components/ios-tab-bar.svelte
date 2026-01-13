@@ -33,11 +33,11 @@
 </script>
 
 <nav class="fixed bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-gray-200/60 dark:border-gray-700/60">
-	<div class="flex items-center justify-around px-2 pb-[env(safe-area-inset-bottom)] pt-2">
+	<div class="flex items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
 		{#each tabs as tab}
 			<a
 				href={tab.href}
-				class="flex flex-col items-center justify-center w-[72px] py-1 rounded-lg no-tap-highlight active:opacity-70 {isActive(tab.href)
+				class="flex flex-col items-center justify-center flex-1 h-[50px] no-tap-highlight active:opacity-70 {isActive(tab.href)
 					? 'text-primary'
 					: 'text-gray-500 dark:text-gray-400'}"
 			>
@@ -46,7 +46,7 @@
 					class="h-6 w-6"
 					strokeWidth={2}
 				/>
-				<span class="text-[10px] mt-1 {isActive(tab.href) ? 'font-semibold' : 'font-medium'}">
+				<span class="text-[10px] mt-1 font-medium">
 					{tab.label}
 				</span>
 			</a>
