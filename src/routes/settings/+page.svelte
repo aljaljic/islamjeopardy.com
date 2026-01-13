@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
-	import { Settings, Trash2, AlertTriangle, LogOut } from 'lucide-svelte';
+	import { Settings, Trash2, AlertTriangle, LogOut, PlusCircle, FolderOpen } from 'lucide-svelte';
 	import { enhance } from '$app/forms';
 	import { toast } from '$lib/stores/toast';
 	import type { ActionData } from './$types';
@@ -46,6 +46,28 @@
 					<p class="text-sm text-muted-foreground mt-2">
 						<span class="font-medium">User ID:</span> {data.session?.user?.id.slice(0, 8)}...
 					</p>
+				</div>
+			</div>
+
+			<hr class="border-border" />
+
+			<!-- Your Games -->
+			<div class="space-y-2">
+				<h3 class="text-lg font-semibold">Your Games</h3>
+				<p class="text-sm text-muted-foreground">Create and manage your trivia games</p>
+				<div class="flex flex-col gap-3">
+					<a href="/games/new">
+						<Button class="w-full gap-2 gradient-primary border-0 text-white touch-target">
+							<PlusCircle class="h-4 w-4" />
+							Create New Game
+						</Button>
+					</a>
+					<a href="/games/my-games">
+						<Button variant="outline" class="w-full gap-2 touch-target">
+							<FolderOpen class="h-4 w-4" />
+							My Games
+						</Button>
+					</a>
 				</div>
 			</div>
 
