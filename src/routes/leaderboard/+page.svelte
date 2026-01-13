@@ -3,12 +3,6 @@
 	import { Button } from '$lib/components/ui/button';
 	import { leaderboard } from '$lib/stores/leaderboard.svelte';
 	import { Trophy, Medal, Clock, Trash2, TrendingUp, Calendar, X } from 'lucide-svelte';
-	import { onMount } from 'svelte';
-
-	onMount(() => {
-		// Refresh data from localStorage on mount
-		leaderboard.reload();
-	});
 
 	function clearAllResults() {
 		if (confirm('Are you sure you want to clear all game history? This cannot be undone.')) {
