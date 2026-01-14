@@ -573,7 +573,7 @@
 								bind:value={editingTeamName}
 								onkeydown={handleTeamNameKeydown}
 								onblur={saveTeamName}
-								class="w-full min-w-[60px] max-w-[100px] md:min-w-[80px] md:max-w-[120px] rounded border-2 border-white/50 bg-white/20 px-1 py-0.5 text-center text-xs font-bold text-white placeholder-white/70 focus:border-white focus:outline-none md:text-sm xl:text-base"
+								class="w-full min-w-[60px] max-w-[100px] md:min-w-[80px] md:max-w-[120px] rounded border-2 border-white/50 bg-white/20 px-1 py-0.5 text-center text-base font-bold text-white placeholder-white/70 focus:border-white focus:outline-none md:text-sm xl:text-base"
 								placeholder="Player name"
 								autofocus
 							/>

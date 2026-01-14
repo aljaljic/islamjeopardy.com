@@ -14,7 +14,8 @@
       "Bash(npm cache clean:*)",
       "Bash(npm run build:ios:*)",
       "Bash(npx cap sync:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(xargs:*)"
     ]
   }
 }
