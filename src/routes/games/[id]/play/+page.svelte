@@ -633,7 +633,7 @@
 				<CardHeader class="pb-4 xl:pb-6">
 					<div class="mb-3 xl:mb-4 flex items-center justify-between">
 						<span class="rounded-full bg-primary/10 px-3 py-1 xl:px-4 xl:py-2 text-sm xl:text-base 2xl:text-lg font-semibold text-primary">{currentQuestion.categoryName}</span>
-						<span class="rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 xl:px-6 xl:py-3 text-lg xl:text-xl 2xl:text-2xl font-bold text-white shadow-md border-2 border-blue-500/50">{currentQuestion.points} Points</span>
+						<span class="rounded-full {currentTheme.scoreCard} px-4 py-2 xl:px-6 xl:py-3 text-lg xl:text-xl 2xl:text-2xl font-bold shrink-0">{currentQuestion.points} Points</span>
 					</div>
 					<CardTitle class="text-2xl md:text-3xl xl:text-4xl 2xl:text-5xl leading-tight text-foreground">{currentQuestion.question_text}</CardTitle>
 				</CardHeader>
