@@ -652,7 +652,7 @@
 	{#if gamePhase === 'answer' && currentQuestion}
 		{@const isDoubleJeopardy = doubleJeopardyQuestions.has(currentQuestion.id)}
 		{@const displayPoints = isDoubleJeopardy ? currentQuestion.points * 2 : currentQuestion.points}
-		<div class="container mx-auto flex flex-1 items-start md:items-center justify-center px-4 py-4">
+		<div class="container mx-auto flex flex-1 items-center justify-center px-4 py-4">
 			<Card class="w-full max-w-2xl xl:max-w-4xl 2xl:max-w-5xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
 				<CardHeader class="pb-2 md:pb-4 xl:pb-6">
 					<div class="mb-1 md:mb-2 xl:mb-4 flex items-center justify-between gap-2 md:gap-4">
