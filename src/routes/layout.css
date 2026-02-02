@@ -6,6 +6,18 @@ body {
 	-webkit-overflow-scrolling: touch;
 	overscroll-behavior-y: none;
 	height: 100%;
+	touch-action: manipulation; /* Prevents double-tap zoom */
+}
+
+/* Prevent double-tap zoom on all interactive elements */
+a,
+button,
+input,
+select,
+textarea,
+[role='button'],
+[tabindex] {
+	touch-action: manipulation;
 }
 
 body {
@@ -340,4 +352,17 @@ body {
 		transform: scale(0.97);
 		opacity: 0.9;
 	}
+}
+
+/* Prevent scroll chaining to parent containers */
+.scroll-container {
+	overscroll-behavior: contain;
+	-webkit-overflow-scrolling: touch;
+}
+
+/* For fixed/modal content that shouldn't scroll the page behind */
+.scroll-lock {
+	overflow: hidden;
+	position: fixed;
+	width: 100%;
 }
