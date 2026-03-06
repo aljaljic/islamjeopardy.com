@@ -27,9 +27,9 @@
 </script>
 
 <div class="container mx-auto px-4 py-8">
-	<div class="grid gap-8 lg:grid-cols-3">
+	<div class="grid gap-8 md:grid-cols-3">
 		<!-- Main Content -->
-		<div class="lg:col-span-2">
+		<div class="md:col-span-2">
 			<Card>
 				<CardHeader>
 					<div class="mb-2 flex flex-wrap items-center gap-2">

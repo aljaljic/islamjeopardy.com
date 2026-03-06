@@ -10,7 +10,7 @@
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-background p-4">
-	<Card class="w-full max-w-md border-2 shadow-xl">
+	<Card class="w-full max-w-md md:max-w-lg border-2 shadow-xl">
 		<CardHeader class="text-center">
 			<div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl gradient-primary shadow-lg shadow-primary/25">
 				<UserPlus class="h-7 w-7 text-white" />

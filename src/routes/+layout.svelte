@@ -13,6 +13,28 @@
 
 	let { children, data }: { children: any; data: LayoutData } = $props();
 
+	// Fix iOS orientation change causing stuck layout
+	$effect(() => {
+		if (!browser) return;
+		function forceReflow() {
+			// Small delay lets the browser settle into new dimensions first
+			setTimeout(() => {
+				const el = document.documentElement;
+				el.style.overflow = 'hidden';
+				void el.offsetHeight;
+				el.style.overflow = '';
+			}, 100);
+		}
+		// Modern API (preferred)
+		screen.orientation?.addEventListener('change', forceReflow);
+		// Fallback for older iOS
+		window.addEventListener('orientationchange', forceReflow);
+		return () => {
+			screen.orientation?.removeEventListener('change', forceReflow);
+			window.removeEventListener('orientationchange', forceReflow);
+		};
+	});
+
 	// Hide navbar when playing a game
 	let isPlayingGame = $derived($page.url.pathname.match(/^\/games\/[^/]+\/play$/));
 	
@@ -23,15 +45,9 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<!-- iOS app-like meta tags -->
-	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-	<!-- Apple Smart App Banner - shows native iOS banner prompting to download the app -->
-	<meta name="apple-itunes-app" content="app-id=6757568105" />
 </svelte:head>
 
-<div class="flex min-h-full flex-col bg-background no-tap-highlight overflow-y-auto">
+<div class="flex min-h-full flex-col bg-background no-tap-highlight">
 	<!-- Offline indicator -->
 	{#if !offline.isOnline}
 		<div class="bg-amber-500 text-white text-center py-1.5 px-4 text-sm font-medium flex items-center justify-center gap-2">

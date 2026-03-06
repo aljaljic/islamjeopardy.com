@@ -72,7 +72,7 @@
 			</CardContent>
 		</Card>
 	{:else}
-		<div class="grid gap-8 lg:grid-cols-2">
+		<div class="grid gap-8 md:grid-cols-2">
 			<!-- Leaderboard Rankings -->
 			<div>
 				<h2 class="text-xl font-bold mb-4 flex items-center gap-2">

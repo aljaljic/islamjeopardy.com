@@ -88,6 +88,17 @@
 		return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
 	});
 
+	// Match body background to game theme (prevents white flash on iOS overscroll)
+	$effect(() => {
+		const bg = theme === 'islamic' ? '#f0fdf4' : '#eff6ff';
+		document.documentElement.style.backgroundColor = bg;
+		document.body.style.backgroundColor = bg;
+		return () => {
+			document.documentElement.style.backgroundColor = '';
+			document.body.style.backgroundColor = '';
+		};
+	});
+
 	// Theme styles - Family-friendly with vibrant colors
 	const themes = {
 		modern: {
@@ -408,11 +419,11 @@
 	<title>{data.game.title} - Play | Islamic Jeopardy</title>
 </svelte:head>
 
-<div class="h-dvh {currentTheme.board} p-2 md:p-3 flex flex-col overflow-y-auto overflow-x-hidden">
+<div class="h-svh w-screen max-w-[100vw] {currentTheme.board} px-2 pb-2 md:px-3 md:pb-3 flex flex-col overflow-y-auto overflow-x-hidden safe-top play-container">
 	<!-- Header -->
-	<div class="container mx-auto mb-2 md:mb-4 shrink-0">
+	<div class="container mx-auto mb-2 md:mb-4 shrink-0 play-header">
 		<div class="flex items-center justify-between gap-2">
-			<h1 class="truncate text-base font-bold md:text-xl {currentTheme.header}">
+			<h1 class="truncate text-base font-bold md:text-xl play-title {currentTheme.header}">
 				{data.game.title}
 			</h1>
 			{#if gamePhase !== 'setup'}
@@ -449,7 +460,7 @@
 	<!-- Setup Phase -->
 	{#if gamePhase === 'setup'}
 		<div class="container mx-auto flex-1 flex flex-col justify-center py-4 md:py-8">
-			<Card class="w-full max-w-md mx-auto shadow-2xl border-2 border-primary/20">
+			<Card class="w-full max-w-md md:max-w-lg mx-auto shadow-2xl border-2 border-primary/20">
 				<CardHeader>
 					<div class="flex items-center gap-3">
 						<a href="/games/{data.game.id}">
@@ -521,51 +532,16 @@
 	<!-- Playing Phase - Game Board -->
 	{#if gamePhase === 'playing'}
 		<div class="flex-1 flex flex-col min-h-0">
-		<!-- Last Card Points Adjustment -->
-		{#if lastAnsweredQuestion}
-			<div class="container mx-auto mb-2 px-1 shrink-0">
-				<div class="mx-auto max-w-4xl rounded-lg bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/30 p-2 md:p-3 shadow-sm">
-					<div class="flex items-center justify-center gap-2 md:gap-4 flex-wrap">
-						<div class="text-center">
-							<span class="text-xs font-semibold text-muted-foreground">Last: </span>
-							<span class="text-sm md:text-base font-bold text-primary">{lastAnsweredQuestion.points} pts</span>
-						</div>
-						<div class="flex flex-wrap justify-center gap-1 md:gap-2">
-							{#each players as player, i}
-								<div class="flex items-center gap-0.5">
-									<span class="text-[10px] md:text-xs font-medium text-muted-foreground truncate max-w-[50px] md:max-w-[70px]">{player.name}</span>
-									<Button
-										size="sm"
-										variant="outline"
-										onclick={() => adjustPoints(i, false)}
-										class="h-6 w-6 md:h-7 md:w-7 p-0 text-red-600 hover:bg-red-50 hover:border-red-400 font-bold text-sm"
-										title={`-${lastAnsweredQuestion.points}`}
-									>
-										-
-									</Button>
-									<Button
-										size="sm"
-										onclick={() => adjustPoints(i, true)}
-										class="h-6 w-6 md:h-7 md:w-7 p-0 font-bold text-sm"
-										title={`+${lastAnsweredQuestion.points}`}
-									>
-										+
-									</Button>
-								</div>
-							{/each}
-						</div>
-					</div>
-				</div>
-			</div>
-		{/if}
-
-		<!-- Score Display -->
-		<div class="container mx-auto mb-2 md:mb-3 shrink-0">
-			<div class="flex flex-wrap justify-center gap-2 md:gap-3 xl:gap-4">
+		<!-- Score Display with integrated +/- buttons -->
+		<div class="container mx-auto mb-2 md:mb-3 shrink-0 play-scores-section">
+			{#if lastAnsweredQuestion}
+				<p class="text-center text-sm md:text-base font-bold text-primary mb-1 play-last-pts">Last: {lastAnsweredQuestion.points} pts</p>
+			{/if}
+			<div class="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] md:flex md:flex-wrap md:justify-center gap-1.5 md:gap-3 xl:gap-4 max-w-4xl mx-auto play-scores-grid">
 				{#each players as player, i}
 					<div
-						class="rounded-lg md:rounded-xl border-2 px-2 py-1 md:px-4 md:py-2 xl:px-5 xl:py-3 text-center shadow-lg transition-all transform hover:scale-105 {currentTheme.scoreCard}
-							{i === currentPlayerIndex ? 'ring-2 md:ring-4 ring-yellow-400 ring-offset-1 md:ring-offset-2 scale-105 md:scale-110 shadow-2xl' : 'hover:shadow-xl'}"
+						class="rounded-lg md:rounded-xl border-2 px-1 py-1 md:px-4 md:py-2 xl:px-5 xl:py-3 text-center shadow-lg transition-all transform play-score-card {currentTheme.scoreCard}
+							{i === currentPlayerIndex ? 'ring-2 md:ring-4 ring-yellow-400 ring-offset-1 md:ring-offset-2 shadow-2xl' : 'hover:shadow-xl'}"
 					>
 						{#if editingTeamIndex === i}
 							<input
@@ -573,7 +549,7 @@
 								bind:value={editingTeamName}
 								onkeydown={handleTeamNameKeydown}
 								onblur={saveTeamName}
-								class="w-full min-w-[60px] max-w-[100px] md:min-w-[80px] md:max-w-[120px] rounded border-2 border-white/50 bg-white/20 px-1 py-0.5 text-center text-base font-bold text-white placeholder-white/70 focus:border-white focus:outline-none md:text-sm xl:text-base"
+								class="w-full min-w-[60px] max-w-[100px] md:min-w-[80px] md:max-w-[120px] rounded border-2 border-white/50 bg-white/20 px-1 py-0.5 text-center text-base font-bold text-white placeholder-white/70 focus:border-white focus:outline-none"
 								placeholder="Player name"
 								autofocus
 							/>
@@ -586,19 +562,37 @@
 								{player.name}
 							</button>
 						{/if}
-						<p class="text-lg font-extrabold md:text-2xl xl:text-3xl 2xl:text-4xl">{player.score}</p>
+						<div class="flex items-center justify-center gap-0.5 md:gap-2">
+							<button
+								onclick={() => lastAnsweredQuestion && adjustPoints(i, false)}
+								class="h-[44px] w-[44px] md:h-10 md:w-10 shrink-0 rounded-full font-bold text-lg md:text-xl flex items-center justify-center transition-colors play-adjust-btn
+									{lastAnsweredQuestion ? 'bg-red-500/80 hover:bg-red-600 active:bg-red-700 text-white shadow-md' : 'bg-white/10 text-transparent pointer-events-none'}"
+								title={lastAnsweredQuestion ? `-${lastAnsweredQuestion.points}` : ''}
+							>
+								-
+							</button>
+							<p class="text-base font-extrabold md:text-2xl xl:text-3xl 2xl:text-4xl tabular-nums text-center flex-1 play-score-num">{player.score}</p>
+							<button
+								onclick={() => lastAnsweredQuestion && adjustPoints(i, true)}
+								class="h-[44px] w-[44px] md:h-10 md:w-10 shrink-0 rounded-full font-bold text-lg md:text-xl flex items-center justify-center transition-colors play-adjust-btn
+									{lastAnsweredQuestion ? 'bg-green-500/80 hover:bg-green-600 active:bg-green-700 text-white shadow-md' : 'bg-white/10 text-transparent pointer-events-none'}"
+								title={lastAnsweredQuestion ? `+${lastAnsweredQuestion.points}` : ''}
+							>
+								+
+							</button>
+						</div>
 					</div>
 				{/each}
 			</div>
 		</div>
 
 		<!-- Game Board Grid - Fills remaining viewport -->
-		<div class="flex-1 container mx-auto flex flex-col min-h-0 pb-2">
-			<div class="flex-1 grid grid-cols-5 grid-rows-[auto_repeat(5,1fr)] gap-0.5 md:gap-1 xl:gap-2 min-h-0">
+		<div class="flex-1 container mx-auto flex flex-col min-h-0 pb-2 safe-bottom play-board-wrap">
+			<div class="flex-1 grid grid-cols-5 grid-rows-[auto_repeat(5,1fr)] gap-1 md:gap-1.5 xl:gap-2 min-h-0 play-board">
 				<!-- Category Headers -->
 				{#each data.categories as category}
 					<div
-						class="border-b-2 p-1 md:p-2 xl:p-3 text-center text-[8px] font-bold uppercase md:text-[10px] lg:text-xs xl:text-sm 2xl:text-base flex items-center justify-center {currentTheme.category}"
+						class="border-b-2 p-1 md:p-2 xl:p-3 text-center text-[10px] font-bold uppercase md:text-xs lg:text-sm xl:text-base 2xl:text-lg flex items-center justify-center play-cat-header {currentTheme.category}"
 					>
 						<span class="line-clamp-2">{category.name}</span>
 					</div>
@@ -613,7 +607,7 @@
 						<button
 							onclick={() => selectQuestion(colIndex, rowIndex)}
 							disabled={isAnswered}
-							class="jeopardy-card border text-base font-bold relative md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl flex items-center justify-center
+							class="jeopardy-card play-cell border text-base font-bold relative md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl flex items-center justify-center min-h-[44px]
 								{isAnswered ? currentTheme.cellAnswered + ' cursor-default opacity-50' : currentTheme.cell + ' cursor-pointer'}"
 						>
 							{question.points}
@@ -627,7 +621,7 @@
 
 	<!-- Question Phase -->
 	{#if gamePhase === 'question' && currentQuestion}
-		<div class="container mx-auto flex flex-1 items-center justify-center px-4 py-4">
+		<div class="container mx-auto flex flex-1 items-center justify-center px-4 py-4 overflow-y-auto">
 			<div in:scale={{ start: 0.3, duration: 400, easing: (t) => t * (2 - t) }}>
 				<Card class="w-full max-w-2xl xl:max-w-4xl 2xl:max-w-5xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
 				<CardHeader class="pb-4 xl:pb-6">
@@ -652,7 +646,7 @@
 	{#if gamePhase === 'answer' && currentQuestion}
 		{@const isDoubleJeopardy = doubleJeopardyQuestions.has(currentQuestion.id)}
 		{@const displayPoints = isDoubleJeopardy ? currentQuestion.points * 2 : currentQuestion.points}
-		<div class="container mx-auto flex flex-1 items-center justify-center px-4 py-4">
+		<div class="container mx-auto flex flex-1 items-center justify-center px-4 py-4 overflow-y-auto">
 			<Card class="w-full max-w-2xl xl:max-w-4xl 2xl:max-w-5xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
 				<CardHeader class="pb-2 md:pb-4 xl:pb-6">
 					<div class="mb-1 md:mb-2 xl:mb-4 flex items-center justify-between gap-2 md:gap-4">
@@ -736,7 +730,7 @@
 	{#if gamePhase === 'finished'}
 		<div class="container mx-auto flex flex-col items-center justify-center px-2 sm:px-4 py-4 sm:py-8 gap-4 sm:gap-6">
 			<!-- Award Card -->
-			<div class="award-card w-full max-w-sm sm:max-w-md rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl">
+			<div class="award-card w-full max-w-sm sm:max-w-md md:max-w-lg rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl">
 				<!-- Header with logo and site -->
 				<div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-4 sm:px-6 py-3 sm:py-4 text-center">
 					<div class="flex items-center justify-center gap-2 mb-0.5 sm:mb-1">
@@ -800,7 +794,7 @@
 			</div>
 
 			<!-- Action Buttons (not included in screenshot) -->
-			<Card class="w-full max-w-sm sm:max-w-md shadow-xl border-2 border-primary/20">
+			<Card class="w-full max-w-sm sm:max-w-md md:max-w-lg shadow-xl border-2 border-primary/20">
 				<CardContent class="pt-4 sm:pt-6 space-y-3 sm:space-y-4">
 					<!-- Share Button -->
 					<Button
@@ -875,6 +869,54 @@
 		}
 		100% {
 			transform: scale(1);
+		}
+	}
+
+	/* Compact layout for phone landscape (short viewports only, not iPad) */
+	@media (max-height: 500px) {
+		.play-container {
+			padding-bottom: 4px;
+		}
+		.play-header {
+			margin-bottom: 2px;
+		}
+		.play-title {
+			font-size: 0.875rem;
+		}
+		.play-scores-section {
+			margin-bottom: 2px;
+		}
+		.play-last-pts {
+			font-size: 0.75rem;
+			margin-bottom: 0;
+		}
+		.play-scores-grid {
+			gap: 4px;
+		}
+		.play-score-card {
+			padding: 2px 4px;
+		}
+		.play-score-num {
+			font-size: 0.875rem;
+		}
+		.play-board-wrap {
+			padding-bottom: 2px;
+		}
+		.play-board {
+			gap: 2px;
+		}
+		.play-cat-header {
+			padding: 2px;
+			font-size: 8px;
+		}
+		.play-cell {
+			min-height: 0;
+			font-size: 0.875rem;
+		}
+		.play-adjust-btn {
+			height: 24px;
+			width: 24px;
+			font-size: 0.75rem;
 		}
 	}
 

@@ -93,7 +93,7 @@
 				}}
 			>
 				<div class="space-y-4">
-					<div class="grid gap-4 sm:grid-cols-2">
+					<div class="grid gap-4 md:grid-cols-2">
 						<div class="space-y-2">
 							<label for="name" class="text-sm font-medium">
 								Name <span class="text-muted-foreground">(optional)</span>
