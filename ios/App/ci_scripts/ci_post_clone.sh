@@ -44,4 +44,9 @@ if [ -f "$PACKAGE_SWIFT" ]; then
     cat "$PACKAGE_SWIFT"
 fi
 
+# Regenerate Package.resolved after Package.swift was modified by cap sync
+echo "Resolving Swift package dependencies..."
+cd "$CI_PRIMARY_REPOSITORY_PATH/ios/App"
+xcodebuild -resolvePackageDependencies -workspace App.xcworkspace -scheme App
+
 echo "=== CI Post Clone Complete ==="
