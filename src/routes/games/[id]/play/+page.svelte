@@ -649,8 +649,8 @@
 		<div class="container mx-auto flex flex-1 items-center justify-center px-4 py-4 overflow-y-auto play-phase-wrap">
 			<Card class="w-full max-w-2xl xl:max-w-4xl 2xl:max-w-5xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
 				<CardHeader class="pb-2 md:pb-4 xl:pb-6 play-phase-header">
-					<div class="mb-1 md:mb-2 xl:mb-4 flex items-center justify-between gap-2 md:gap-4 play-phase-badges">
-						<CardTitle class="text-base md:text-2xl xl:text-3xl 2xl:text-4xl leading-tight play-phase-question">{currentQuestion.question_text}</CardTitle>
+					<div class="mb-1 md:mb-2 xl:mb-4 flex items-center justify-between gap-2 md:gap-4 play-phase-badges play-answer-question-row">
+						<CardTitle class="text-base md:text-2xl xl:text-3xl 2xl:text-4xl leading-tight play-phase-question min-w-0">{currentQuestion.question_text}</CardTitle>
 						{#if isDoubleJeopardy}
 							<span class="rounded-full bg-yellow-400 px-3 py-1 xl:px-4 xl:py-2 text-sm xl:text-base font-bold text-yellow-900 shrink-0">2x Double Jeopardy</span>
 						{/if}
@@ -664,7 +664,7 @@
 					</div>
 
 					{#if currentQuestion.explanation}
-						<div class="rounded-lg bg-blue-50 border-2 border-blue-200 p-3 md:p-5 xl:p-6">
+						<div class="rounded-lg bg-blue-50 border-2 border-blue-200 p-3 md:p-5 xl:p-6 play-answer-explanation">
 							<p class="text-xs md:text-sm xl:text-base font-semibold text-blue-900 mb-1 md:mb-2 flex items-center gap-2">
 								<Lightbulb class="h-3 w-3 md:h-4 md:w-4 xl:h-5 xl:w-5" />
 								Did you know?
@@ -680,7 +680,7 @@
 					</p>
 
 					{#if isDoubleJeopardy}
-						<div class="rounded-lg bg-yellow-50 border-2 border-yellow-300 p-2 md:p-3 xl:p-4">
+						<div class="rounded-lg bg-yellow-50 border-2 border-yellow-300 p-2 md:p-3 xl:p-4 play-answer-dj-warning">
 							<p class="text-xs md:text-sm xl:text-base font-semibold text-yellow-900 text-center">
 								<AlertTriangle class="inline h-3 w-3 md:h-4 md:w-4 xl:h-5 xl:w-5 mr-1" />
 							Double Jeopardy: Wrong answer will deduct {displayPoints} points!
@@ -921,44 +921,55 @@
 		/* Question & Answer phases */
 		.play-phase-wrap {
 			padding: 4px 8px;
+			align-items: flex-start;
 		}
 		.play-phase-header {
-			padding: 8px 12px 4px;
+			padding: 4px 8px 2px;
 		}
 		.play-phase-badges {
-			margin-bottom: 4px;
+			margin-bottom: 2px;
 		}
 		.play-phase-points {
-			padding: 4px 8px;
-			font-size: 0.875rem;
+			padding: 2px 6px;
+			font-size: 0.75rem;
 		}
 		.play-phase-question {
-			font-size: 1rem;
+			font-size: 0.875rem;
 		}
 		.play-phase-turn {
-			margin-bottom: 4px;
-			font-size: 0.75rem;
+			margin-bottom: 2px;
+			font-size: 0.7rem;
 		}
 		.play-phase-btn {
 			min-height: 44px;
-			font-size: 1rem;
+			font-size: 0.875rem;
 		}
 		.play-phase-content {
-			gap: 6px;
+			gap: 4px;
 		}
 		.play-phase-answer-box {
-			padding: 8px;
+			padding: 6px;
 		}
 		.play-phase-answer-text {
-			font-size: 1rem;
+			font-size: 0.875rem;
 		}
 		.play-phase-buttons {
 			display: grid;
 			grid-template-columns: 1fr 1fr;
-			gap: 6px;
+			gap: 4px;
 		}
 		.play-phase-buttons :global(button) {
 			min-height: 44px;
+			font-size: 0.8rem;
+		}
+		.play-answer-explanation {
+			padding: 4px 6px;
+		}
+		.play-answer-explanation p {
+			font-size: 0.7rem;
+		}
+		.play-answer-dj-warning {
+			padding: 2px 6px;
 		}
 	}
 
