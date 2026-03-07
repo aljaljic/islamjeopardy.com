@@ -621,21 +621,21 @@
 
 	<!-- Question Phase -->
 	{#if gamePhase === 'question' && currentQuestion}
-		<div class="container mx-auto flex flex-1 items-center justify-center px-4 py-4 overflow-y-auto">
+		<div class="container mx-auto flex flex-1 items-center justify-center px-4 py-4 overflow-y-auto play-phase-wrap">
 			<div in:scale={{ start: 0.3, duration: 400, easing: (t) => t * (2 - t) }}>
 				<Card class="w-full max-w-2xl xl:max-w-4xl 2xl:max-w-5xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
-				<CardHeader class="pb-4 xl:pb-6">
-					<div class="mb-3 xl:mb-4 flex items-center justify-between">
+				<CardHeader class="pb-4 xl:pb-6 play-phase-header">
+					<div class="mb-3 xl:mb-4 flex items-center justify-between play-phase-badges">
 						<span class="rounded-full bg-primary/10 px-3 py-1 xl:px-4 xl:py-2 text-sm xl:text-base 2xl:text-lg font-semibold text-primary">{currentQuestion.categoryName}</span>
-						<span class="rounded-full {currentTheme.scoreCard} px-4 py-2 xl:px-6 xl:py-3 text-lg xl:text-xl 2xl:text-2xl font-bold shrink-0">{currentQuestion.points} Points</span>
+						<span class="rounded-full {currentTheme.scoreCard} px-4 py-2 xl:px-6 xl:py-3 text-lg xl:text-xl 2xl:text-2xl font-bold shrink-0 play-phase-points">{currentQuestion.points} Points</span>
 					</div>
-					<CardTitle class="text-2xl md:text-3xl xl:text-4xl 2xl:text-5xl leading-tight text-foreground">{currentQuestion.question_text}</CardTitle>
+					<CardTitle class="text-2xl md:text-3xl xl:text-4xl 2xl:text-5xl leading-tight text-foreground play-phase-question">{currentQuestion.question_text}</CardTitle>
 				</CardHeader>
 				<CardContent class="pt-2 xl:pt-4">
-					<p class="mb-6 xl:mb-8 text-center text-lg xl:text-xl 2xl:text-2xl font-medium text-muted-foreground">
+					<p class="mb-6 xl:mb-8 text-center text-lg xl:text-xl 2xl:text-2xl font-medium text-muted-foreground play-phase-turn">
 						{players[currentPlayerIndex].name}'s turn
 					</p>
-					<Button class="min-h-[64px] xl:min-h-[80px] 2xl:min-h-[96px] w-full text-lg xl:text-xl 2xl:text-2xl font-bold shadow-lg hover:shadow-xl transition-all" onclick={showAnswer}>Show Answer</Button>
+					<Button class="min-h-[64px] xl:min-h-[80px] 2xl:min-h-[96px] w-full text-lg xl:text-xl 2xl:text-2xl font-bold shadow-lg hover:shadow-xl transition-all play-phase-btn" onclick={showAnswer}>Show Answer</Button>
 				</CardContent>
 			</Card>
 			</div>
@@ -646,19 +646,19 @@
 	{#if gamePhase === 'answer' && currentQuestion}
 		{@const isDoubleJeopardy = doubleJeopardyQuestions.has(currentQuestion.id)}
 		{@const displayPoints = isDoubleJeopardy ? currentQuestion.points * 2 : currentQuestion.points}
-		<div class="container mx-auto flex flex-1 items-center justify-center px-4 py-4 overflow-y-auto">
+		<div class="container mx-auto flex flex-1 items-center justify-center px-4 py-4 overflow-y-auto play-phase-wrap">
 			<Card class="w-full max-w-2xl xl:max-w-4xl 2xl:max-w-5xl shadow-2xl border-2 border-primary/30 bg-gradient-to-br from-white to-primary/5">
-				<CardHeader class="pb-2 md:pb-4 xl:pb-6">
-					<div class="mb-1 md:mb-2 xl:mb-4 flex items-center justify-between gap-2 md:gap-4">
-						<CardTitle class="text-base md:text-2xl xl:text-3xl 2xl:text-4xl leading-tight">{currentQuestion.question_text}</CardTitle>
+				<CardHeader class="pb-2 md:pb-4 xl:pb-6 play-phase-header">
+					<div class="mb-1 md:mb-2 xl:mb-4 flex items-center justify-between gap-2 md:gap-4 play-phase-badges">
+						<CardTitle class="text-base md:text-2xl xl:text-3xl 2xl:text-4xl leading-tight play-phase-question">{currentQuestion.question_text}</CardTitle>
 						{#if isDoubleJeopardy}
 							<span class="rounded-full bg-yellow-400 px-3 py-1 xl:px-4 xl:py-2 text-sm xl:text-base font-bold text-yellow-900 shrink-0">2x Double Jeopardy</span>
 						{/if}
 					</div>
 				</CardHeader>
-				<CardContent class="space-y-3 md:space-y-6 xl:space-y-8">
-					<div class="rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border-2 border-primary/30 p-4 md:p-8 xl:p-10 2xl:p-12 shadow-lg">
-						<p class="text-center text-lg md:text-2xl xl:text-3xl 2xl:text-4xl font-bold text-primary">
+				<CardContent class="space-y-3 md:space-y-6 xl:space-y-8 play-phase-content">
+					<div class="rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border-2 border-primary/30 p-4 md:p-8 xl:p-10 2xl:p-12 shadow-lg play-phase-answer-box">
+						<p class="text-center text-lg md:text-2xl xl:text-3xl 2xl:text-4xl font-bold text-primary play-phase-answer-text">
 							{currentQuestion.answer_text}
 						</p>
 					</div>
@@ -675,7 +675,7 @@
 						</div>
 					{/if}
 
-					<p class="text-center text-base md:text-lg xl:text-xl 2xl:text-2xl font-semibold text-muted-foreground">
+					<p class="text-center text-base md:text-lg xl:text-xl 2xl:text-2xl font-semibold text-muted-foreground play-phase-turn">
 						{players[currentPlayerIndex].name}'s answer
 					</p>
 
@@ -688,7 +688,7 @@
 						</div>
 					{/if}
 
-					<div class="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-4 xl:gap-6 w-full">
+					<div class="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-4 xl:gap-6 w-full play-phase-buttons">
 						<Button
 							size="lg"
 							onclick={() => handleAnswer(false)}
@@ -917,6 +917,48 @@
 			height: 24px;
 			width: 24px;
 			font-size: 0.75rem;
+		}
+		/* Question & Answer phases */
+		.play-phase-wrap {
+			padding: 4px 8px;
+		}
+		.play-phase-header {
+			padding: 8px 12px 4px;
+		}
+		.play-phase-badges {
+			margin-bottom: 4px;
+		}
+		.play-phase-points {
+			padding: 4px 8px;
+			font-size: 0.875rem;
+		}
+		.play-phase-question {
+			font-size: 1rem;
+		}
+		.play-phase-turn {
+			margin-bottom: 4px;
+			font-size: 0.75rem;
+		}
+		.play-phase-btn {
+			min-height: 44px;
+			font-size: 1rem;
+		}
+		.play-phase-content {
+			gap: 6px;
+		}
+		.play-phase-answer-box {
+			padding: 8px;
+		}
+		.play-phase-answer-text {
+			font-size: 1rem;
+		}
+		.play-phase-buttons {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 6px;
+		}
+		.play-phase-buttons :global(button) {
+			min-height: 44px;
 		}
 	}
 

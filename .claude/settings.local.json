@@ -16,7 +16,16 @@
       "Bash(npx cap sync:*)",
       "Bash(npm run build:*)",
       "Bash(xargs:*)",
-      "Bash(file:*)"
+      "Bash(file:*)",
+      "Bash(grep:*)",
+      "Bash(head:*)",
+      "Bash(npx svelte-check:*)",
+      "Bash(pnpm run:*)",
+      "Bash(swift:*)",
+      "Bash(open:*)",
+      "Bash(git add:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(git:*)"
     ]
   }
 }
