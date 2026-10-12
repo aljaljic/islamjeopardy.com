@@ -47,6 +47,7 @@
 						<a class="transition-colors hover:text-foreground/80 text-muted-foreground text-md hover:text-primary" href="/play-now">Play Now</a>
 						<a class="transition-colors hover:text-foreground/80 text-muted-foreground text-md hover:text-primary" href="/leaderboard">Leaderboard</a>
 						<a class="transition-colors hover:text-foreground/80 text-muted-foreground text-md hover:text-primary" href="/feedback">Feedback</a>
+						<a href="https://saytheshahada.com" target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-foreground/80 text-muted-foreground text-md hover:text-primary">Say the Shahada</a>
 					</div>
 				</div>
 
